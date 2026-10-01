@@ -1,0 +1,857 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ElectronicStore - Shop Top Brand Electronics{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* Custom Tailwind Configuration (For colors from the image) */
+        tailwind.config= {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-dark': '#1F2937',
+                            /* Dark Gray for top bar */
+                            'secondary-nav': '#FFFFFF',
+                            /* White for secondary nav */
+                            'hero-text': '#F3F4F6',
+                            /* Light Gray for hero text */
+                            'shop-btn': '#3B82F6',
+                            /* Blue for Shop Now button */
+                            'shop-btn-hover': '#2563EB',
+                            /* Darker Blue on hover */
+                            'link-blue': '#2563EB',
+                            /* Blue for phone number/links */
+                            'rating-star': '#059669',
+                            /* Green Star for Product Details */
+                            'delivery-green': '#10B981',
+                            /* Free Delivery Green */
+                            'price-red': '#DC2626',
+                            /* Special Price Red */
+                            'btn-cart-green': '#14B8A6',
+                            /* Add to Cart Button Green */
+                            'hero-bg-color': '#465f74',
+                            /* Specific dark blue-gray from image */
+                    }
+                }
+            }
+        }
+
+        /* --- CSS FOR HERO SECTION BACKGROUND IMAGE --- */
+        /* Note: Using a single background-image for the hero section with background-size: cover; for responsiveness. */
+        .hero-section-with-bg {
+            /* Image: The blue background color is dominant in the provided image */
+            background-color: #3C6382;
+            /* Deep Slate Blue */
+
+            /* NOTE: Original image URL is kept, but its blend with the background color is what matters */
+            /* Since the image you provided is complex (product display), we focus on the text area */
+            /* To fully replicate the image, you need to use the image as a background */
+            background-image: url('https://static.wixstatic.com/media/c837a6_00173c4a200f44269fa9acb29a36beaf~mv2.jpg/v1/fill/w_375,h_568,fp_0.47_0.00,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/templatesdrive_3d_models_of_8_products_edited.jpg');
+            background-size: cover;
+            background-position: center bottom;
+            /* Products are at the bottom, so center bottom helps */
+            background-repeat: no-repeat;
+            position: relative;
+            /* Setting a fixed height for a clearer view like the image */
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Mobile specific styles */
+        @media (max-width: 767px) {
+
+            /* Tailwind's 'md' breakpoint is 768px */
+            .hero-section-with-bg {
+                background-position: center 90%;
+                /* Products more visible at bottom */
+                background-size: 150%;
+                /* Image is larger on mobile to show more detail */
+                height: 80vh;
+                /* Adjusted height for mobile to prevent too much stretching */
+            }
+        }
+
+        /* Desktop styles to ensure no change */
+        @media (min-width: 768px) {
+
+            /* Tailwind's 'md' breakpoint */
+            .hero-section-with-bg {
+                background-image: url('https://static.wixstatic.com/media/c837a6_00173c4a200f44269fa9acb29a36beaf~mv2.jpg/v1/fill/w_1585,h_845,fp_0.49_0.52,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/templatesdrive_3d_models_of_8_products_edited.jpg');
+                background-size: cover;
+                /* Back to original cover for desktop */
+                background-position: center bottom;
+                /* Adjust for desktop to show products at bottom */
+                height: 100vh;
+                /* Ensure desktop height is as intended */
+            }
+        }
+
+        /* Category Card Specific Styles (Using placeholders for realistic appearance) */
+        /* Ensuring they use background-size: cover and reasonable height for mobile. */
+        .category-mobile {
+            background-image: url('https://static.wixstatic.com/media/c837a6_5b37c6d9828241aa804f2e0af2334a7c~mv2.jpeg/v1/fill/w_754,h_360,fp_0.50_0.50,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/templatesdrive_smartphone_--ar_169_--style_raw_--sref_httpss_mj_fae1610e-8d4e-469f-ba15-d7.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .category-drones {
+            background-image: url('https://static.wixstatic.com/media/c837a6_85bb5adcb80b4125b8a0f5214ef04365~mv2.jpeg/v1/fill/w_754,h_360,fp_0.64_0.67,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/templatesdrive_still_camera_yellow_toned_background_--ar_169_--_428ffea2-e625-405e-a844-20.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .category-headphones {
+            background-image: url('https://static.wixstatic.com/media/c837a6_386fa17e5e6d4012bcef90f32b15624d~mv2.jpeg/v1/fill/w_754,h_360,fp_0.60_0.61,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/templatesdrive_headphoes_green_toned_background_--ar_169_--styl_3f2a235f-221a-40d3-a420-96.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .category-computers {
+            background-image: url('https://static.wixstatic.com/media/c837a6_08bb311bff82496da18ec5b8e6e0f864~mv2.jpeg/v1/fill/w_754,h_360,fp_0.50_0.59,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/templatesdrive_laptop_--ar_169_--style_raw_--sref_httpss_mj_run_3eb1f332-e4c9-4c29-8986-92.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .category-tablets {
+            background-image: url('https://static.wixstatic.com/media/c837a6_f812686c1dc144ae890d6ac29193522d~mv2.jpeg/v1/fill/w_754,h_360,fp_0.48_0.51,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/templatesdrive_tablet_--ar_169_--style_raw_--sref_httpss_mj_run_edc85ecf-ad3a-4a7c-9b04-11.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .category-tv {
+            background-image: url('https://static.wixstatic.com/media/c837a6_b34b9247aa3a44dfa1fae48f7699bc39~mv2.jpeg/v1/fill/w_754,h_360,fp_0.76_0.59,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/templatesdrive_projector_--ar_169_--style_raw_--sref_httpss_mj__5db03932-2daf-40b9-8e02-b1.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* --- Product Spotlight Specific Styles (Matching image_194cf7.jpg) --- */
+        /* Ensuring they use background-size: cover and reasonable height for mobile. */
+        .spotlight-card-1 {
+            /* Mobile/Watch Card - Blue/Purple Gradient */
+            background-image: url('https://static.wixstatic.com/media/c837a6_e5bbe5af2f99449c95beef06d49920d0~mv2.jpg/v1/fill/w_746,h_541,fp_0.47_0.38,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c837a6_e5bbe5af2f99449c95beef06d49920d0~mv2.jpg');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spotlight-card-2 {
+            /* Speaker Card - Olive/Gray Gradient */
+            background-image: url('https://static.wixstatic.com/media/c837a6_787ae33e92e54dbd834feddf9d78df23~mv2.jpg/v1/fill/w_746,h_541,fp_0.48_0.47,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/templatesdrive_3d_model_of_a_disc_shaped_portable_speaker_shot__a4876fca-fd77-4e24-be0b-58.jpg');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* PRO DETAILS */
+        /* Custom styles for specific elements not easily done with Tailwind */
+        .old-price {
+            text-decoration: line-through;
+            color: #6b7280;
+            /* Gray-500 */
+        }
+
+        /* Custom verified badge color */
+        .verified-badge {
+            background-color: #e5e7eb;
+            /* Gray-200 for subtle background */
+            color: #5998f0;
+            background-color: #dce8f8;
+            /* Gray-900 for text */
+        }
+
+        .review-options-menu {
+            position: absolute;
+            right: 0;
+            /* Menu ko right side se align karega */
+            top: 100%;
+            /* Button ke theek neeche position karega */
+            z-index: 10;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            /* Gray-200 border */
+            border-radius: 0.375rem;
+            /* rounded-md */
+            /* Matching the subtle shadow in the image */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            min-width: 10rem;
+            padding: 0;
+            list-style: none;
+            margin-top: 4px;
+            /* Button aur menu ke beech halka gap */
+        }
+
+        .review-options-menu li {
+            padding: 0.6rem 1rem;
+            /* Image ke spacing ke anusar */
+            cursor: pointer;
+            font-size: 0.875rem;
+            /* text-sm */
+            color: #1f2937;
+            /* Gray-900 */
+            display: flex;
+            align-items: center;
+            transition: background-color 0.1s;
+        }
+
+        /* Hover effect for menu items (Image Match) */
+        .review-options-menu li:hover {
+            background-color: #f3f4f6;
+            /* Gray-100 for subtle hover */
+        }
+
+        /* Separator line (Image Match) */
+        .review-options-menu hr {
+            border-top: 1px solid #e5e7eb;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Custom CSS for the Dropdown Toggle Button */
+        .custom-dropdown-toggle {
+            /* Matching the border, padding, and roundness of the image */
+            border: 1px solid #d1d5db;
+            /* Gray-300 */
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            /* rounded-md */
+            background-color: white;
+            transition: border-color 0.15s ease-in-out;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        /* Hover effect for the entire button to match the image */
+        .custom-dropdown-toggle:hover {
+            border-color: #6b7280;
+            /* Darker gray on hover */
+        }
+
+        /* Text Style for "Filter by rating:" and "Sort by:" */
+        .toggle-label {
+            color: #6b7280;
+            /* Gray-500 */
+            font-size: 0.875rem;
+            /* text-sm */
+        }
+
+        /* Text Style for the selected value (e.g., "All stars", "Most Relevant") */
+        .toggle-value {
+            color: #1f2937;
+            /* Gray-900 */
+            font-weight: 600;
+            /* font-semibold */
+            margin-left: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        /* Custom Dropdown Menu Styling (The box that opens) */
+        .custom-dropdown-menu {
+            position: absolute;
+            z-index: 10;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            /* Gray-200 border for the menu box */
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            min-width: 10rem;
+            padding: 0;
+            list-style: none;
+            /* Remove bullet points */
+            margin-top: 4px;
+            /* Slight gap between button and menu */
+            right: 0;
+            /* Align menu to the right of the button */
+        }
+
+        /* Styling for each item in the dropdown menu */
+        .custom-dropdown-menu li {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #1f2937;
+            transition: background-color 0.1s;
+        }
+
+        /* Hover effect for menu items (like in the image) */
+        .custom-dropdown-menu li:hover {
+            background-color: #f3f4f6;
+            /* Gray-100 for hover */
+        }
+
+        /* Specific style for the currently selected item (Most Relevant in the image) */
+        .custom-dropdown-menu li.selected {
+            background-color: #f3f4f6;
+            /* Gray-100 for selected */
+            font-weight: 500;
+        }
+
+        /* Custom styles (Common) */
+        .product-shadow {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s;
+        }
+
+        .product-shadow:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        .breadcrumb-link {
+            color: #6b7280;
+        }
+
+        /* Desktop Sidebar Styles */
+        .active-link {
+            color: black;
+            font-weight: 600;
+        }
+
+        /* Note: For the 'Browse By' section, the design in image_295638.jpg shows no borders or indents. */
+        .sidebar-link {
+            display: block;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            color: #4b5563;
+        }
+
+        /* Accordion state */
+        .accordion-content {
+            display: none;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        }
+
+        .accordion-content.open {
+            display: block;
+            max-height: 500px;
+            /* Large value to ensure content displays */
+        }
+
+        .accordion-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            margin-left: 4px;
+            line-height: 1;
+            transition: transform 0.3s;
+            font-size: 1.5rem;
+            /* For visual + / — */
+        }
+
+        /* Desktop icon styles */
+        #desktop-filters .accordion-icon {
+            color: #9ca3af;
+            /* Gray color for desktop icons */
+            font-weight: normal;
+            font-size: 1rem;
+        }
+
+        /* --- MOBILE-SPECIFIC STYLES (Filter Modal) --- */
+
+        /* Modal Overlay */
+        .filter-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 40;
+            display: none;
+            /* Default hidden */
+            overscroll-behavior: contain;
+        }
+
+        /* Modal Content Panel (Slides from right) */
+        .filter-modal-content {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background: white;
+            z-index: 50;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-modal-content.open {
+            transform: translateX(0);
+        }
+
+        .modal-body-scroll {
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        /* Utility to prevent body scroll when modal is open on mobile */
+        .modal-open {
+            overflow: hidden;
+        }
+
+        /* Custom radio button and checkbox styles to match the images */
+        input[type='radio'],
+        input[type='checkbox'] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border-radius: 50%;
+            border: 1px solid #d1d5db;
+            /* border-gray-300 */
+            width: 18px;
+            height: 18px;
+            transition: all 0.15s ease-in-out;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* Checkbox specific reset */
+        input[type='checkbox'] {
+            border-radius: 2px;
+        }
+
+        /* Radio Checked State (Image: solid fill circle) */
+        input[type='radio']:checked {
+            border-color: black;
+            background-color: black;
+            box-shadow: 0 0 0 2px white inset;
+        }
+
+        /* Checkbox Checked State (Image: simple checkmark/fill) */
+        input[type='checkbox']:checked {
+            background-color: black;
+            border-color: black;
+        }
+
+        input[type='checkbox']:checked::after {
+            content: '✓';
+            color: white;
+            font-size: 10px;
+            position: relative;
+            top: -2px;
+            left: 3px;
+            display: block;
+        }
+
+        /* Modal: Recommended (checked) style */
+        #modal-content-sort label {
+            font-weight: 400;
+            /* text-gray-700 */
+            color: #374151;
+            margin-left: 10px;
+            /* Adjusted spacing */
+        }
+
+        #modal-content-sort input[type='radio']:checked+label {
+            color: black;
+            font-weight: 500;
+            /* Medium weight for checked label */
+        }
+
+        /* Price slider matching (for visual consistency) */
+        .price-slider-track {
+            position: relative;
+            height: 4px;
+            background-color: #e5e7eb;
+            /* light gray for track */
+            border-radius: 9999px;
+            margin-top: 20px;
+        }
+
+        .price-slider-range {
+            position: absolute;
+            height: 4px;
+            background-color: black;
+        }
+
+        .price-slider-thumb {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: black;
+            border-radius: 9999px;
+            top: -4px;
+            margin-left: -6px;
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased bg-white">
+
+    <header class="bg-white border-b border-gray-200">
+        <div class="w-full mx-auto">
+            <div class="flex items-center justify-between py-3 px-4 md:hidden">
+                <div class="text-gray-900 font-semibold text-xl tracking-wider rounded-md">
+                    ElectronicStore
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <a href="/cart/" class="relative hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
+                            </path>
+                        </svg>
+                        {% if cart_item_count > 0 %}
+                        <span
+                            class="absolute -top-1 -right-2 text-xs bg-black text-white rounded-full h-4 w-4 flex items-center justify-center font-semibold">
+                            {{ cart_item_count }}
+                        </span>
+                        {% endif %}
+                    </a>
+                    <a href="/my_orders/" class="relative hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z">
+                            </path>
+                        </svg>
+                        {% if pending_order_count > 0 %}
+                        <span
+                            class="absolute -top-1 -right-2 text-xs bg-black text-white rounded-full h-4 w-4 flex items-center justify-center font-semibold">
+                            {{ pending_order_count }}
+                        </span>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between py-2 px-4 border-t border-gray-200 md:hidden">
+                <i id="menu-toggle"
+                    class="fas fa-bars text-2xl text-gray-800 cursor-pointer hover:text-blue-700 transition"></i>
+
+                <form action="{% url 'search_results' %}" method="GET" class="flex items-center">
+
+                    <input type="text" name="q" placeholder="Search products..."
+                        class="p-2 border border-gray-300 rounded-l-full focus:outline-none focus:border-gray-800 w-64" />
+
+                    <button type="submit" class="flex items-center justify-center p-2 px-4 bg-gray-800 text-white rounded-r-full 
+               transition duration-150 hover:bg-gray-700 
+               h-full -ml-1 border border-gray-800">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+                            </path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <div class="hidden md:block">
+                <div class="flex items-center justify-between py-3 px-4">
+                    <div class="text-black font-semibold text-2xl tracking-wider rounded-md">
+                        ElectronicStore
+                    </div>
+
+                    <div class="flex items-center space-x-6 text-black py-2 px-8">
+                        <a href="/profile_user/" class="flex items-center space-x-1 text-sm hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 3a9 9 0 11-18 0 9 9 0 0118 0z">
+                                </path>
+                            </svg>
+                            <span>{{ request.user.user_name|title }}</span>
+                        </a>
+                        <a href="/cart/" class="relative hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
+                            {% if cart_item_count > 0 %}
+                            <span
+                                class="absolute -top-1 -right-2 text-xs bg-black text-white rounded-full h-4 w-4 flex items-center justify-center font-semibold">
+                                {{ cart_item_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+                        <a href="/my_orders/" class="relative hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z">
+                                </path>
+                            </svg>
+                            {% if pending_order_count > 0 %}
+                            <span
+                                class="absolute -top-1 -right-2 text-xs bg-black text-white rounded-full h-4 w-4 flex items-center justify-center font-semibold">
+                                {{ pending_order_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 py-2 px-4 flex items-center justify-between text-sm">
+                    <nav class="flex space-x-6 py-2 px-5 text-gray-800 font-awesome">
+                        <a href="#" class="hover:underline">Mobile & Wearable Tech</a>
+                        <a href="#" class="hover:underline">Drones & Cameras</a>
+                        <a href="#" class="hover:underline">Headphones & Speakers</a>
+                        <a href="#" class="hover:underline">Computers</a>
+                        <a href="#" class="hover:underline">Tablets</a>
+                        <a href="#" class="hover:underline">TV & Home Cinema</a>
+                        <span class="text-blue-600 font-semibold hidden md:inline hover:underline">Call
+                            123-456-7890</span>
+                    </nav>
+                    <form action="{% url 'search_results' %}" method="GET"
+                        class="flex items-center rounded-full border border-gray-300">
+
+                        <input type="text" name="q" placeholder="Search products..."
+                            class="p-2 focus:outline-none w-64 md:w-96 rounded-l-full border-r-0" />
+
+                        <button type="submit" class="flex items-center justify-center p-2 px-4 bg-[#1e293b] text-white rounded-r-full 
+                                    transition duration-150 hover:bg-gray-700 h-full" style="height: 44px;">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+                                </path>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="drawer-wrapper" class="fixed inset-0 w-full h-full z-40 bg-black bg-opacity-70 
+           opacity-0 invisible transition-opacity duration-500 ease-out md:hidden 
+           flex justify-start" style="backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);">
+
+        <div id="side-drawer" class="h-full w-4/5 max-w-sm bg-white 
+               transform -translate-x-full transition-transform duration-500 ease-out 
+               flex flex-col shadow-2xl overflow-y-auto" style="min-width: 280px;">
+
+            <div class="bg-blue-500 p-6 flex justify-between items-center sticky top-0 border-b border-gray-800">
+                <div class="flex items-center">
+                    <i class="fas fa-store text-white text-2xl mr-3"></i>
+                    <h2 class="text-white text-lg font-bold tracking-wider">ElectronicStore</h2>
+                </div>
+                <button id="close-menu-btn"
+                    class="text-white text-3xl focus:outline-none hover:text-red-500 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <nav class="flex flex-col p-6 space-y-1 flex-grow">
+
+                <p class="text-xs text-gray-500 font-bold uppercase mt-4 mb-2">Shop Categories</p>
+                <a href="#"
+                    class="text-gray-900 text-lg font-medium py-3 px-2 rounded hover:bg-blue-50 hover:text-blue-600 transition duration-150 flex items-center">
+                    <i class="fas fa-mobile-alt w-5 mr-4 text-blue-500"></i> Mobile & Wearable Tech
+                </a>
+                <a href="#"
+                    class="text-gray-900 text-lg font-medium py-3 px-2 rounded hover:bg-blue-50 hover:text-blue-600 transition duration-150 flex items-center">
+                    <i class="fas fa-camera w-5 mr-4 text-blue-500"></i> Drones & Cameras
+                </a>
+                <a href="#"
+                    class="text-gray-900 text-lg font-medium py-3 px-2 rounded hover:bg-blue-50 hover:text-blue-600 transition duration-150 flex items-center">
+                    <i class="fas fa-volume-up w-5 mr-4 text-blue-500"></i> Headphones & Speakers
+                </a>
+                <a href="#"
+                    class="text-gray-900 text-lg font-medium py-3 px-2 rounded hover:bg-blue-50 hover:text-blue-600 transition duration-150 flex items-center">
+                    <i class="fas fa-laptop w-5 mr-4 text-blue-500"></i> Computers & Tablets
+                </a>
+                <a href="#"
+                    class="text-gray-900 text-lg font-medium py-3 px-2 rounded hover:bg-blue-50 hover:text-blue-600 transition duration-150 flex items-center">
+                    <i class="fas fa-tv w-5 mr-4 text-blue-500"></i> TV & Home Cinema
+                </a>
+
+                <div class="pt-6 border-t border-gray-200"></div>
+
+                <p class="text-xs text-gray-500 font-bold uppercase mt-4 mb-2">My Account</p>
+                <a href="/profile_user/"
+                    class="text-gray-700 text-base flex items-center py-3 px-2 rounded hover:bg-blue-50 hover:text-blue-600 transition duration-150">
+                    <i class="fas fa-user-circle w-5 mr-4 text-blue-500"></i> My Account
+                </a>
+                <a href="/my_orders/"
+                    class="text-gray-700 text-base flex items-center py-3 px-2 rounded hover:bg-blue-50 hover:text-blue-600 transition duration-150">
+                    <i class="fas fa-shopping-bag w-5 mr-4 text-blue-500"></i> My Orders
+                </a>
+            </nav>
+
+            <div class="p-6 bg-gray-100 border-t border-gray-300">
+                <p class="text-gray-500 text-sm mb-1">24/7 Support</p>
+                <span class="text-gray-900 text-xl font-bold tracking-wide">123-456-7890</span>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('menu-toggle');
+            const closeBtn = document.getElementById('close-menu-btn');
+            const drawerWrapper = document.getElementById('drawer-wrapper'); // Controls opacity/overlay
+            const sideDrawer = document.getElementById('side-drawer');       // Controls slide-in/out
+
+            function openMenu() {
+                // 1. Show the Wrapper (Makes it visible for BLUR and darkening)
+                drawerWrapper.classList.remove('invisible');
+                setTimeout(() => {
+                    drawerWrapper.classList.add('opacity-100');
+                }, 10);
+
+                // 2. Start the slide-in of the side drawer (Removes -translate-x-full)
+                sideDrawer.classList.remove('-translate-x-full');
+
+                // Lock body scrolling (Focus)
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeMenu() {
+                // 1. Start the slide-out of the side drawer (Adds -translate-x-full)
+                sideDrawer.classList.add('-translate-x-full');
+
+                // 2. Start the fade-out of the wrapper's background
+                drawerWrapper.classList.remove('opacity-100');
+
+                // 3. Hide the wrapper completely after the transition (500ms) ends
+                setTimeout(() => {
+                    drawerWrapper.classList.add('invisible');
+                    // Restore body scrolling
+                    document.body.style.overflow = 'auto';
+                }, 500); // Important: 500ms transition time
+            }
+
+            // 1. Open Menu on Hamburger Icon Click
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', openMenu);
+            }
+
+            // 2. Close Menu on Close Button Click
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeMenu);
+            }
+
+            // 3. Close Menu on clicking the Wrapper (The dark overlay area)
+            if (drawerWrapper) {
+                drawerWrapper.addEventListener('click', (event) => {
+                    // Ensure click is only on the wrapper, not the drawer content itself
+                    if (event.target.id === 'drawer-wrapper') {
+                        closeMenu();
+                    }
+                });
+            }
+
+            // 4. Close Menu when a link inside is clicked
+            const menuLinks = sideDrawer ? sideDrawer.querySelectorAll('a') : [];
+            menuLinks.forEach(link => {
+                link.addEventListener('click', closeMenu);
+            });
+        });
+    </script>
+
+    {% block hero %}{% endblock %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-blue-600 border-t border-gray-100">
+        <div class="max-w-7xl mx-auto py-4 sm:py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
+
+                <div
+                    class="col-span-full sm:col-span-2 md:col-span-1 flex flex-col justify-between space-y-8 order-last md:order-none pt-4 md:pt-0 border-t border-gray-400/50 md:border-none">
+                    <div>
+                        <div class="w-auto mb-4">
+                            <h2 class="text-2xl font-extrabold text-white">MobileStore</h2>
+                        </div>
+                    </div>
+
+                    <div class="text-sm text-white space-y-3">
+                        <p class="font-bold">2025 MobileStore® by TWDROCKYY, Inc</p>
+                        <p>
+                            <a href="#" class="hover:text-gray-200">Terms of Service</a> |
+                            <a href="#" class="hover:text-gray-200">Privacy Policy</a>
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-4">Shop</h3>
+                    <ul class="space-y-3 text-sm text-white">
+                        <li><a href="#" class="hover:text-gray-200">Mobile & Wearable Tech</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Drones & Cameras</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Headphones & Speakers</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Computers</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Tablets</a></li>
+                        <li><a href="#" class="hover:text-gray-200">TV & Home Cinema</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-4">About Us</h3>
+                    <ul class="space-y-3 text-sm text-white">
+                        <li><a href="#" class="hover:text-gray-200">About SMRT</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Our Features</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Careers</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Partnerships</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-4">Legal</h3>
+                    <ul class="space-y-3 text-sm text-white">
+                        <li><a href="#" class="hover:text-gray-200">Terms & Conditions</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Shipping Policy</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Refund Policy</a></li>
+                        <li><a href="#" class="hover:text-gray-200">Accessibility Statement​</a></li>
+                        <li><a href="#" class="hover:text-gray-200">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-span-1 sm:col-span-1 md:col-span-1">
+                    <h3 class="text-lg font-semibold text-white mb-4">Get in touch</h3>
+                    <p class="text-sm text-white mb-4">Questions or feedback? We'd love to hear from you</p>
+                    <div class="flex space-x-4 text-xl text-white mb-2">
+                        <a href="#" class="hover:text-gray-200" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="hover:text-gray-200" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="hover:text-gray-200" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="hover:text-gray-200" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="hover:text-gray-200" aria-label="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

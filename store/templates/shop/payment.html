@@ -1,0 +1,158 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Complete Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        .active-option {
+            background: #e8f0ff !important;
+        }
+    </style>
+</head>
+
+<body class="bg-[#f1f3f6]">
+<header class="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg sticky top-0 z-50 fixed">
+  <div class="max-w-7xl mx-auto px-4 py-3 md:px-6 md:py-4 
+              flex justify-center md:justify-start items-center space-x-2">
+
+    <div>
+      <a href="/index/">
+        <h1 class="text-xl md:text-2xl font-bold text-white tracking-wide leading-none">
+          Electronic Store
+        </h1>
+        <p class="text-xs text-white italic mt-0.5 text-center md:text-left">
+          <span class="font-semibold text-yellow-300">Fast Delivery</span> Guaranteed!
+        </p>
+      </a>
+    </div>
+
+  </div>
+</header>
+
+    <div class="max-w-[1200px] mx-auto mt-6 bg-white rounded-xl shadow p-6">
+
+        <!-- TIMER -->
+        <div class="mb-4 text-right">
+            <span class="text-gray-700 font-semibold">⏳ Payment expires in:</span>
+            <span id="timer" class="text-red-600 font-bold text-lg">05:00</span>
+        </div>
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-2">
+                <a href="{% url 'orderSummary' %}">
+                    <span class="cursor-pointer text-xl">←</span>
+                </a>
+                <h1 class="text-xl font-semibold text-gray-800">Complete Payment</h1>
+            </div>
+            <span class="text-sm text-gray-600">🔒 Secure</span>
+        </div>
+
+        <div class="max-w-[1100px] mx-auto mt-6 flex flex-col lg:flex-row gap-4">
+
+            <!-- LEFT -->
+            <div class="flex flex-col lg:flex-row gap-6 w-full lg:w-[72%]">
+
+                <!-- OPTIONS -->
+                <div class="w-full lg:w-[38%] border rounded-lg overflow-hidden">
+
+                    <div class="p-4 cursor-pointer option-item active-option" data-screen="cod">
+                        <h2 class="font-semibold text-gray-900">Cash on Delivery (COD)</h2>
+                        <p class="text-xs text-gray-600">Pay at delivery</p>
+                    </div>
+
+                </div>
+
+                <!-- DYNAMIC AREA -->
+                <div id="dynamicArea" class="bg-[#f8fbff] border p-4 rounded-lg">
+                    <p class='text-sm text-gray-700 mb-3'>Pay at the time of delivery.</p>
+                    <form method="POST" action="/cod_order/">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="mt-4 w-full bg-yellow-400 hover:bg-yellow-500 py-3 rounded font-semibold">
+                            Place Order (COD)
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- RIGHT PRICE BOX -->
+            <div class="w-full lg:w-[28%] border rounded-lg p-6 bg-[#f5f8ff]">
+                <div class="flex justify-between text-sm mt-2">
+                    <span>Total MRP ({{ cart_total_items }} items)</span>
+                    <span>{{ total_mrp|floatformat:0|indian_format }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span>Selling Price</span>
+                    <span>{{ total_price|floatformat:0|indian_format }}</span>
+                </div>
+                <div class="flex justify-between text-sm mt-2">
+                    <span>Total Discount</span>
+                    <span>- {{ total_discount|floatformat:0|indian_format }}</span>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="flex justify-between text-lg font-semibold">
+                    <span>Total Amount</span>
+                    <span class="text-blue-600">{{ total_payable|floatformat:0|indian_format }}</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // --- SCREEN SWITCH ---
+        const screens = {
+            cod: `
+            <p class='text-sm text-gray-700 mb-3'>Pay at the time of delivery.</p>
+            <form method="POST" action="/cod_order/">
+                {% csrf_token %}
+                <button type="submit" 
+                    class="mt-4 w-full bg-yellow-400 hover:bg-yellow-500 py-3 rounded font-semibold">
+                    Place Order (COD)
+                </button>
+            </form>
+        `
+        };
+
+        document.querySelectorAll('.option-item').forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll('.option-item').forEach(x => x.classList.remove("active-option"));
+                btn.classList.add("active-option");
+                document.getElementById("dynamicArea").innerHTML = screens[btn.dataset.screen];
+            });
+        });
+
+        // --- TIMER (5 minutes) ---
+        // TIMER LOGIC
+        let expiryTimestamp = {{ expiry_ts }} * 1000;
+        let timerBox = document.getElementById("timer");
+
+        setInterval(() => {
+            const remaining = expiryTimestamp - Date.now();
+
+            if (remaining <= 0) {
+                timerBox.textContent = "00:00";
+                window.location.href = "/orderSummary/?expired=1";
+                return;
+            }
+
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+
+            timerBox.textContent =
+                `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+        }, 1000);
+    </script>
+
+</body>
+
+</html>

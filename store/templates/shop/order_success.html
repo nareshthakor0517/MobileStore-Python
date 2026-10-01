@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Success</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* CRITICAL: Ensure no horizontal scrollbar */
+        body {
+                overflow: hidden;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .pop-animation {
+            animation: pop 0.5s ease-out forwards;
+        }
+
+        /* 🎯 FIX: Adjusted for sticky header height. This wrapper ensures content is centered below the header. */
+        .main-content-wrapper {
+            /* 100vh - header height. Assuming header height is around 56px (py-3/py-4) */
+            min-height: calc(100vh - 56px);
+            margin-top: 56px;
+        }
+
+        /* 🎯 FIX: Ensure header is fixed on top and takes full width */
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+<header class="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg sticky top-0 z-50 fixed">
+  <div class="max-w-7xl mx-auto px-4 py-3 md:px-6 md:py-4 
+              flex justify-center md:justify-start items-center space-x-2">
+
+    <div>
+      <a href="/index/">
+        <h1 class="text-xl md:text-2xl font-bold text-white tracking-wide leading-none">
+          Electronic Store
+        </h1>
+        <p class="text-xs text-white italic mt-0.5 text-center md:text-left">
+          <span class="font-semibold text-yellow-300">Fast Delivery</span> Guaranteed!
+        </p>
+      </a>
+    </div>
+
+  </div>
+</header>
+
+
+    <div class="main-content-wrapper w-full flex justify-center items-center mt-[-5%] sm:mt-[-3%] p-4">
+
+        <div class="w-full max-w-lg mx-auto bg-white shadow-2xl p-6 sm:p-10 rounded-xl text-center border-t-8 border-green-500 pop-animation">
+
+            <div class="flex justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20 text-green-500 pop-animation"
+                    viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd" />
+                </svg>
+            </div>
+
+            <h1 class="text-2xl sm:text-3xl font-extrabold mt-2 text-gray-800">
+                Order Placed Successfully!
+            </h1>
+
+            <p class="text-gray-600 mt-3 text-base sm:text-lg leading-relaxed border-b pb-4 mb-4">
+                Thank you for shopping with us! Your order confirmation has been sent to your email.
+            </p>
+
+            <div class="bg-gray-50 p-4 rounded-lg text-left mb-6">
+                <p class="text-sm font-semibold text-gray-700">Order ID: <span
+                        class="text-blue-600 font-bold">#ORD-123456789</span></p>
+                <p class="text-sm text-gray-600 mt-1">Fast Delivery: <span class="font-medium text-green-600">Within 30 Minutes</span></p>
+            </div>
+
+
+            <div class="mt-6">
+                <a href="/index/"
+                    class="w-full sm:w-auto inline-block bg-blue-600 text-white px-8 py-3 rounded-lg shadow-lg 
+                                hover:bg-blue-700 transition duration-300 font-bold tracking-wider">
+                    Continue Shopping
+                </a>
+            </div>
+
+            <p class="mt-6 text-gray-500 text-sm">
+                Track your order <a href="/my_orders/" class="text-blue-600 hover:underline font-semibold">here</a> or
+                contact <a href="/contact" class="text-blue-600 hover:underline font-semibold">Support</a>.
+            </p>
+
+        </div>
+    </div>
+
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</body>
+
+</html>

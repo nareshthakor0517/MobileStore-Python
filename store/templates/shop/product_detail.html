@@ -1,0 +1,594 @@
+{% extends 'shop/Base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}{{ product.pro_name }} — Product Details{% endblock %}
+
+{% block content %}
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<body class="bg-white text-gray-900 font-sans">
+  <div class="w-full px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+    <nav class="text-sm mb-4 md:mb-8" aria-label="Breadcrumb">
+      <ol class="flex items-center space-x-2">
+        <li>
+          <a href="/index/" class="text-gray-500 hover:text-gray-700">Home</a>
+        </li>
+        <li class="text-gray-500">/</li>
+        <li>
+          <a href="#" class="font-medium text-gray-900">{{ product.pro_name }}</a>
+        </li>
+      </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-20">
+
+      <div class="lg:sticky lg:top-8 self-start ">
+        <div
+          class="bg-gray-100 p-4 sm:p-8 rounded-lg flex  justify-center items-center h-[400px] sm:h-[500px] lg:h-[600px] overflow-hidden">
+          <div class="relative w-full h-full">
+            <img src="{{ product.pro_image.url }}" alt="{{ product.pro_name }}"
+              class="absolute inset-0 object-contain w-full h-full ">
+          </div>
+        </div>
+        <p class="text-sm text-gray-500 mt-4 hidden lg:block">SKU: 0011</p>
+      </div>
+
+      <div class="lg:pl-8">
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 mb-2">{{ product.pro_name }}</h1>
+
+        {% if product.reviews.count > 0 %}
+        <div class="flex items-center mb-6">
+          <div class="star-rating-container flex text-blue-600 space-x-0.5 text-lg mr-2" class=""
+            data-average-rating="{{ product.average_rating|default:'0.0' }}">
+          </div>
+
+          <p class="ml-2 text-sm text-gray-500">
+            {{ product.average_rating|floatformat:1 }} | {{ product.reviews_count }} reviews
+          </p>
+        </div>
+        {% endif %}
+
+
+        </script>
+        <p class="text-sm text-gray-500 mb-1">SKU: 0011</p>
+        <div class="flex items-baseline mb-6">
+          <span class="old-price text-xl mr-2">{{ product.pro_mrp|floatformat:0|indian_format }}</span>
+          <span class="text-3xl font-bold text-gray-900">{{ product.pro_price|floatformat:0|indian_format }}</span>
+          {% if product.por_discount > 0 %}
+          <span class="text-green-600 ml-3 text-xl font-semibold">{{ product.por_discount }}% off</span>
+          {% endif %}
+        </div>
+        <p class="text-gray-700 text-base mb-8 leading-relaxed">
+          I'm a product description. This is a great place to "sell" your product and grab buyers' attention.
+          Describe your product clearly and concisely. Use unique keywords. Write your own description instead
+          of using manufacturers' copy.
+        </p>
+
+        <div class="flex mb-3 flex-col md:flex-row w-full gap-3 md:space-x-4 md:gap-0">
+          <form method="post" action="{% url 'add_to_cart' product.pro_id %}" class="w-full">
+            {% csrf_token %}
+            <button class="w-full
+               py-4 px-6 border border-transparent 
+               text-base font-medium text-white 
+               bg-black hover:bg-gray-800 
+               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black 
+               transition duration-150 ease-in-out
+               md:flex-1"> Add to Cart
+            </button>
+          </form>
+          <form method="post" action="{% url 'buy_now' product.pro_id %}" class="w-full">
+            {% csrf_token %}
+            <button class="w-full 
+               py-4 px-6 border border-gray-400 
+               text-base font-medium text-gray-900 
+               bg-white hover:bg-gray-100 
+               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 
+               transition duration-150 ease-in-out 
+               mt-0 md:flex-1"> Buy Now
+            </button>
+          </form>
+        </div>
+
+        <div class="space-y-4">
+          <div class="border-b border-gray-200 py-3">
+            {% if product.ram or product.storage or product.display or product.rear_camera or product.front_camera or product.battery or product.processor %}
+            <div class="border-t border-gray-200 pt-4 ">
+                <h3 class="text-lg font-semibold mb-3">Highlights</h3>
+
+                <div class="grid grid-cols-2 gap-y-3 gap-x-2 text-sm text-gray-700">
+
+                    {% if product.ram %}
+                    <div class="flex flex-col">
+                        <span class="font-medium text-gray-900">RAM</span>
+                        <span>{{ product.ram }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if product.storage %}
+                    <div class="flex flex-col">
+                        <span class="font-medium text-gray-900">Storage</span>
+                        <span>{{ product.storage }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if product.display %}
+                    <div class="flex flex-col">
+                        <span class="font-medium text-gray-900">Display</span>
+                        <span>{{ product.display }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if product.rear_camera %}
+                    <div class="flex flex-col">
+                        <span class="font-medium text-gray-900">Rear Camera</span>
+                        <span>{{ product.rear_camera }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if product.front_camera %}
+                    <div class="flex flex-col">
+                        <span class="font-medium text-gray-900">Front Camera</span>
+                        <span>{{ product.front_camera }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if product.battery %}
+                    <div class="flex flex-col">
+                        <span class="font-medium text-gray-900">Battery</span>
+                        <span>{{ product.battery }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if product.processor %}
+                    <div class="flex flex-col col-span-2">
+                        <span class="font-medium text-gray-900">Processor</span>
+                        <span>{{ product.processor }}</span>
+                    </div>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        {% endif %}
+            <details class="group mt-4">
+              <summary class="flex justify-between items-center cursor-pointer text-base font-medium text-gray-900">
+                Product Info
+                <span class="text-xl transform transition-transform group-open:rotate-180">+</span>
+              </summary>
+              <div class="pt-2 pb-1 text-gray-600">
+                <p>I'm a product detail. I'm a great place to add more information about your product
+                  such as sizing, material, care and cleaning instructions. This is also a great space
+                  to write what makes this product special and how your customers can benefit from
+                  this item.</p>
+              </div>
+            </details>
+          </div>
+          <div class="border-b border-gray-200 py-3">
+            <details class="group">
+              <summary class="flex justify-between items-center cursor-pointer text-base font-medium text-gray-900">
+                Return & Refund Policy
+                <span class="text-xl transform transition-transform group-open:rotate-180">+</span>
+              </summary>
+              <div class="pt-2 pb-1 text-gray-600">
+                <p>I’m a Return and Refund policy. I’m a great place to let your customers know what to
+                  do in case they are dissatisfied with their purchase. Having a straightforward
+                  refund or exchange policy is a great way to build trust and reassure your customers
+                  that they can buy with confidence.</p>
+              </div>
+            </details>
+          </div>
+          <div class="border-b border-gray-200 py-3">
+            <details class="group">
+              <summary class="flex justify-between items-center cursor-pointer text-base font-medium text-gray-900">
+                Shipping Info
+                <span class="text-xl transform transition-transform group-open:rotate-180">+</span>
+              </summary>
+              <div class="pt-2 pb-1 text-gray-600">
+                <p>I'm a shipping policy. I'm a great place to add more information about your shipping
+                  methods, packaging and cost. Providing straightforward information about your
+                  shipping policy is a great way to build trust and reassure your customers that they
+                  can buy from you with confidence.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+
+        <div class="flex space-x-4 mt-4 md:ml-0 ml-[25%]">
+          <a href="#" class="text-gray-500 hover:text-gray-900 transition duration-150" aria-label="WhatsApp">
+            <i class="fab fa-whatsapp fa-xl"></i>
+          </a>
+
+          <a href="#" class="text-gray-500 hover:text-gray-900 transition duration-150" aria-label="Instagram">
+            <i class="fab fa-instagram fa-xl"></i>
+          </a>
+
+          <a href="#" class="text-gray-500 hover:text-gray-900 transition duration-150" aria-label="Twitter">
+            <i class="fab fa-x-twitter fa-xl"></i>
+          </a>
+
+          <a href="#" class="text-gray-500 hover:text-gray-900 transition duration-150" aria-label="Pinterest">
+            <i class="fab fa-pinterest-p fa-xl"></i>
+          </a>
+
+          <a href="#" class="text-gray-500 hover:text-gray-900 transition duration-150" aria-label="Facebook">
+            <i class="fab fa-facebook-f fa-xl"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {% if product.reviews.count > 0 %}
+    <div class="w-full pt-10">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        <div class="md:col-span-1 ml-[25%] md:ml-0">
+          <h2 class="text-2xl sm:text-3xl font-awesome md:ml-0 ml-[10%] mb-1 md:mb-4">Reviews</h2>
+
+          <div class="flex items-center mb-4 md:mb-2 md:pl-0">
+            <div class="flex items-center mb-2">
+              <div class="star-rating-container flex text-blue-600 space-x-0.5 text-lg mr-2"
+                data-average-rating="{{ product.average_rating|default:'0.0' }}">
+              </div>
+
+              <span class="text-3xl md:mb-2 mb-2 font-semibold">
+                {{ product.average_rating|default:"0.0" }}
+              </span>
+            </div>
+          </div>
+          <p class="text-gray-500 ml-[5%] mt-[-8%] md:mt-0 md:ml-0 text-sm">Based on {{ product.reviews.count }} reviews
+          </p>
+
+        </div>
+
+        <div class="md:col-span-2">
+          <div class="space-y-2 md:mt-4 md:ml-[50%]">
+
+            {% for item in star_breakdown %}
+            <div class="flex items-center text-sm">
+
+              <span class="w-12 text-gray-700">
+                {{ item.rating }} {% if item.rating == 1 %}star{% else %}stars{% endif %}
+              </span>
+
+              <div class="flex-1 mx-3 bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full" style="width: {{ item.percentage }}%;">
+                </div>
+              </div>
+
+              <span class="w-4 text-right text-gray-700">{{ item.count }}</span>
+            </div>
+            {% endfor %}
+
+          </div>
+        </div>
+      </div>
+
+
+      {% load static %}
+      {% load custom_filters %} {# get_initials filter should be in custom_filters.py #}
+
+      <div x-data="{
+    showFilterModal: false,
+    filterOpen: false,
+    sortOpen: false,
+    currentFilter: '{{ selected_filter|default:" All stars" }}',
+        currentSort: '{{ selected_sort|default:"Most Relevant" }}' , setFilter(value) { this.currentFilter=value },
+        setSort(value) { this.currentSort=value }, applyMobileFilters() { this.showFilterModal=false;
+        window.location.href=`?filter=${encodeURIComponent(this.currentFilter)}&sort=${encodeURIComponent(this.currentSort)}`;
+        } }">
+        <!-- Header: Review count + filter/sort -->
+        <div class="flex justify-between items-center mt-4 md:mt-12">
+          <p class="text-gray-700 text-base font-medium">{{ total_reviews }} reviews</p>
+
+          <div class="flex items-center space-x-4 text-sm">
+            <!-- Mobile Filter Button -->
+            <button @click="showFilterModal = true"
+              class="md:hidden text-blue-600 font-medium py-1 px-3 border border-blue-600 rounded-md">Filter &
+              Sort</button>
+
+            <!-- Desktop Filter Dropdown -->
+            <div class="relative hidden md:inline-block">
+              <button @click="filterOpen=!filterOpen; sortOpen=false" class="custom-dropdown-toggle">
+                <span class="toggle-label hidden sm:inline">Filter by rating:</span>
+                <span x-text="currentFilter" class="toggle-value">All stars</span>
+                <svg class="-mr-1 h-5 w-5 ml-1 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+              <ul x-show="filterOpen" @click.outside="filterOpen=false" class="custom-dropdown-menu ...">
+                {% for star in stars %}
+                <li @click="
+                      setFilter('{{ star }}');
+                      filterOpen=false;
+                      window.location.href=`?filter=${encodeURIComponent('{{ star }}')}&sort=${encodeURIComponent(currentSort)}`;
+                  " class="px-4 py-2 cursor-pointer hover:bg-gray-100">{{ star }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+
+            <!-- Desktop Sort Dropdown -->
+            <div class="relative hidden md:inline-block">
+              <button @click="sortOpen=!sortOpen; filterOpen=false" class="custom-dropdown-toggle">
+                <span class="toggle-label hidden sm:inline">Sort by:</span>
+                <span x-text="currentSort" class="toggle-value">Most Relevant</span>
+                <svg class="-mr-1 h-5 w-5 ml-1 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+              <ul x-show="sortOpen" @click.outside="sortOpen=false"
+                class="custom-dropdown-menu absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                {% for option in sort_options %}
+                <li @click="
+          setSort('{{ option }}');
+          sortOpen=false;
+          window.location.href=`?filter=${encodeURIComponent(currentFilter)}&sort=${encodeURIComponent('{{ option }}')}`;
+        " :class="{ 'font-bold bg-gray-100': currentSort === '{{ option }}' }"
+                  class="px-4 py-2 cursor-pointer hover:bg-gray-100 text-sm text-gray-700" role="menuitem"
+                  tabindex="-1">
+                  <span>{{ option }}</span>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Filter Modal -->
+        <div x-show="showFilterModal" x-transition class="fixed inset-0 z-50 bg-white md:hidden overflow-y-auto">
+          <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center z-10">
+            <button @click="showFilterModal=false" class="text-xl text-gray-700">✕</button>
+            <h3 class="text-lg font-semibold text-gray-900">Filter & Sort</h3>
+            <button @click="applyMobileFilters" class="text-blue-600 font-medium">Update</button>
+          </div>
+
+          <div class="bg-white text-gray-900 p-4">
+            <h4 class="font-normal text-sm text-gray-700 mb-3">Filter by rating:</h4>
+            <div class="space-y-3">
+              {% for star in stars %}
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="radio" name="filter_rating" :checked="currentFilter==='{{ star }}'"
+                  @click="setFilter('{{ star }}')" class="form-radio h-4 w-4 border-gray-300">
+                <span>{{ star }}</span>
+              </label>
+              {% endfor %}
+            </div>
+
+            <hr class="border-t border-gray-200 my-4">
+
+            <h4 class="font-normal text-sm text-gray-700 mb-3">Sort by:</h4>
+            <div class="space-y-3">
+              {% for option in sort_options %}
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="radio" name="sort_option" :checked="currentSort==='{{ option }}'"
+                  @click="setSort('{{ option }}')" class="form-radio h-4 w-4 border-gray-300">
+                <span>{{ option }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-4 border-gray-200">
+
+{% if reviews.object_list %}
+            {% for review in reviews.object_list %}
+            <div class="border-b border-gray-200 pb-6 mb-6">
+                <div class="flex justify-between items-start mb-3">
+                    {% with initials=review.user_id|get_initials %}
+                    <div class="flex items-center space-x-4">
+                        <div
+                            class="w-10 h-10 rounded-full flex items-center justify-center bg-teal-500 text-white font-bold text-lg flex-shrink-0">
+                            {{ initials }}</div>
+                        <div>
+                            <p class="font-bold text-gray-900">{{ review.user_id.user_name|default:"User"|title }}</p>
+                            <span class="text-sm text-gray-500">{{ review.created_at|date:"d F, Y" }}</span>
+                        </div>
+                    </div>
+                    {% endwith %}
+
+                    <div class="relative inline-block text-left" x-data="{ optionsOpen:false }">
+                        <button @click="optionsOpen=!optionsOpen"
+                            class="text-gray-400 hover:text-gray-600 p-1 rounded-full">⋮</button>
+                        <ul x-show="optionsOpen" @click.outside="optionsOpen=false"
+                            class="review-options-menu bg-white shadow-md rounded-md py-1 absolute right-0 mt-2 w-40 z-50">
+                            <li class="px-4 py-2 cursor-pointer hover:bg-gray-100">Copy Link</li>
+                            <li class="px-4 py-2 cursor-pointer hover:bg-gray-100">Edit Review</li>
+                            <hr>
+                            <li class="px-4 py-2 cursor-pointer hover:bg-gray-100 text-red-500">Delete Review</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flex items-center mb-3">
+                    <div class="flex text-yellow-400 space-x-0.5 text-lg mr-3">
+                        {% for i in "12345" %}
+                        <svg class="w-5 h-5" fill="{% if review.rating >= i|add:0 %}#3B82F6{% else %}#D1D5DB{% endif %}"
+                            viewBox="0 0 20 20">
+                            <polygon
+                                points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09" />
+                        </svg>
+                        {% endfor %}
+                    </div>
+                    <span
+                        class="verified-badge px-2 py-1 text-xs font-medium rounded-full flex items-center bg-green-100 text-green-800">✔
+                        Verified</span>
+                </div>
+
+                <p class="text-gray-700 leading-relaxed mb-4">{{ review.review_text }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-gray-500 text-center py-6">No reviews match the selected filter.</p>
+        {% endif %}
+
+        {% if reviews.has_other_pages %}
+        <nav class="flex items-center justify-center pt-4" aria-label="Pagination">
+            
+            {% comment %} Previous Button Logic {% endcomment %}
+            <a href="{% if reviews.has_previous %}?page={{ reviews.previous_page_number }}&filter={{ selected_filter|urlencode }}&sort={{ selected_sort|urlencode }}{% endif %}"
+               class="flex items-center space-x-2 px-4 py-2 text-sm font-medium rounded-md
+                      {% if reviews.has_previous %}text-blue-600 hover:bg-gray-100{% else %}text-gray-400 cursor-not-allowed{% endif %}"
+               aria-disabled="{% if not reviews.has_previous %}true{% endif %}">
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L9.43 10l3.34 3.71a.75.75 0 11-1.08 1.04l-3.75-4.17a.75.75 0 010-1.04l3.75-4.17a.75.75 0 011.08-.02z" clip-rule="evenodd" />
+                </svg>
+                Previous
+            </a>
+
+            <div class="hidden sm:flex space-x-1">
+                {% for i in reviews.paginator.page_range %}
+                    {% if reviews.number == i %}
+                        <span aria-current="page" class="px-3 py-1 text-sm font-medium bg-blue-600 text-white rounded-md">{{ i }}</span>
+                    {% elif i > reviews.number|add:'-3' and i < reviews.number|add:'3' %}
+                        <a href="?page={{ i }}&filter={{ selected_filter|urlencode }}&sort={{ selected_sort|urlencode }}" class="px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">{{ i }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {% comment %} Next Button Logic {% endcomment %}
+            <a href="{% if reviews.has_next %}?page={{ reviews.next_page_number }}&filter={{ selected_filter|urlencode }}&sort={{ selected_sort|urlencode }}{% endif %}"
+               class="flex items-center space-x-2 px-4 py-2 text-sm font-medium rounded-md
+                      {% if reviews.has_next %}text-blue-600 hover:bg-gray-100{% else %}text-gray-400 cursor-not-allowed{% endif %}"
+               aria-disabled="{% if not reviews.has_next %}true{% endif %}">
+                Next
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L10.57 10 7.23 6.29a.75.75 0 011.08-1.04l3.75 4.17a.75.75 0 010 1.04l-3.75 4.17a.75.75 0 01-1.08-.02z" clip-rule="evenodd" />
+                </svg>
+            </a>
+        </nav>
+        {% endif %}
+</div>
+{% endif %}
+
+<section class="py-12 md:py-16 min-h-0 bg-white">
+        <div class="py-1 px-4 sm:px-6 lg:px-8 w-full">
+
+          <div class="flex justify-between items-center ml-0 sm:ml-4 md:mb-10">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Related Products</h2>
+          </div>
+
+          <div
+                    class="grid grid-cols-2 bg-white ml-0 sm:ml-4 w-full sm:w-[97%] min-h-0 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+                    {% for product in related_products %}
+                    <div class="text-center group">
+                        <a href="/product_detail/{{ product.pro_id }}/" class="block">
+
+                            <div
+                                class="bg-white 
+              w-full mt-4
+              h-52 sm:h-72 md:h-80 lg:h-96 
+              flex items-center justify-center p-2 rounded-xl 
+              overflow-hidden relative border border-gray-100/0 hover:border-gray-100 transition duration-300 shadow-md hover:shadow-lg">
+                                <img src="/media/{{ product.pro_image }}/" alt="{{ product.pro_name }}"
+                                    class="h-full w-auto object-contain transition duration-300 group-hover:scale-105">
+                            </div>
+
+                            <div class="mt-2 sm:mt-4">
+                                <p class="text-left text-base sm:text-lg font-bold text-gray-900 px-1 leading-snug">
+                                    {{ product.pro_name }}
+                                </p>
+
+                                <p class="text-left text-sm text-gray-600 mt-1 font-awesome px-1">{{ product.pro_price|indian_format }}</p>
+                                    {% if product.average_rating %}
+                                    {% with rating=product.average_rating|default:0 %}
+                                    <div class="flex items-center space-x-2 text-sm sm:text-base px-1 mt-1">
+                                        <!-- Stars -->
+                                        <div class="flex text-blue-600 space-x-0.5 text-lg">
+                                            {% for i in "12345" %}
+                                                {% with star_index=i|add:"0" %}
+                                                    {% if rating >= star_index %}
+                                                        <!-- Full Star -->
+                                                        <svg class="w-4 h-4 text-blue-600 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                                                            <polygon points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                                        </svg>
+                                                    {% elif rating > star_index|subtract:1 %}
+                                                        <!-- Half Star -->
+                                                        <svg class="w-4 h-4 inline-block" viewBox="0 0 20 20">
+                                                            <defs>
+                                                                <linearGradient id="half-{{ forloop.counter }}">
+                                                                    <stop offset="50%" stop-color="#3B82F6"/>
+                                                                    <stop offset="50%" stop-color="#d1d5db"/>
+                                                                </linearGradient>
+                                                            </defs>
+                                                            <polygon fill="url(#half-{{ forloop.counter }})" points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                                        </svg>
+                                                    {% else %}
+                                                        <!-- Empty Star -->
+                                                        <svg class="w-4 h-4 text-gray-300 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                                                            <polygon points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                                        </svg>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endfor %}
+                                        </div>
+
+                                        <!-- Rating Text -->
+                                        <span class="text-gray-500 font-medium">
+                                            {{ product.average_rating|default:"0.0"|floatformat:1 }} ({{ product.review_count|default:0 }})
+                                        </span>
+                                    </div>
+                                    {% endwith %}
+                                    {% endif %}
+                            </div>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p>No products available right now.</p>
+                    {% endfor %}
+
+                </div>
+        </div>
+</section>
+    </div>
+    </div>
+
+</body>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const containers = document.querySelectorAll(".star-rating-container");
+
+    containers.forEach(container => {
+      const rating = parseFloat(container.dataset.averageRating);
+      const maxStars = 5;
+
+      container.innerHTML = "";
+
+      for (let i = 1; i <= maxStars; i++) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("width", "24");
+        svg.setAttribute("height", "24");
+        svg.setAttribute("viewBox", "0 0 24 24");
+
+        const path = "M12 0L15.3 7.3L23.5 8.5L17.7 14L19.1 22.3L12 18.3L4.9 22.3L6.3 14L0.5 8.5L8.7 7.3L12 0Z";
+
+        const gray = document.createElementNS(svg.namespaceURI, "path");
+        gray.setAttribute("d", path);
+        gray.setAttribute("fill", "#D1D5DB");
+        svg.appendChild(gray);
+
+        const fill = Math.min(Math.max(rating - (i - 1), 0), 1) * 100; // 0–100%
+
+        if (fill > 0) {
+          const blue = document.createElementNS(svg.namespaceURI, "path");
+          blue.setAttribute("d", path);
+          blue.setAttribute("fill", "#3B82F6");
+          svg.appendChild(blue);
+
+          const maskWidth = (fill / 100) * 24;
+          blue.setAttribute("style", `clip-path: inset(0 ${24 - maskWidth}px 0 0);`);
+        }
+
+        container.appendChild(svg);
+      }
+    });
+  });
+</script>
+{% endblock %}

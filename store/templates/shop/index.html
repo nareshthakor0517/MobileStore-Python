@@ -1,0 +1,303 @@
+{% extends 'shop/Base.html' %}
+{% load custom_filters %}
+
+
+{% block title %} Index Page {% endblock %}
+
+{% block hero %}
+<section class="hero-section-with-bg py-16 md:py-24 relative overflow-hidden 
+        h-[70vh] sm:h-[60vh] md:h-[84vh] flex items-center">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center 
+                    md:items-start md:justify-start relative z-10 md:mr-[20%] md:ml-[3%] md:mb-[2%] w-full md:h-full">
+        <div class="text-center w-full p-4 md:w-auto md:max-w-xl md:text-left md:pt-8 mb-[90%]">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-awesome font-bold leading-tight text-white mb-4">
+                Shop The Top <br> Brand Electronic
+            </h1>
+
+            <p class="text-base sm:text-lg text-white mb-6 mt-2">
+                Get more for your money with every purchase!
+            </p>
+
+            <a href="/all_products/"
+                class="inline-block pl-9 pr-9 bg-blue-500 hover:bg-white hover:text-blue-700 text-white font-semibold py-3 px-6 rounded-full transition duration-300 text-sm sm:text-base shadow-lg">
+                Shop Now
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<!-- {{ request.user.user_name }} -->
+<section class="py-12 md:py-16 min-h-0 bg-white">
+    <div class="py-1 px-4 sm:px-6 lg:px-8 w-full">
+
+        <div class="flex justify-between items-center ml-0 sm:ml-4 mb-8 md:mb-10">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">New Products</h2>
+            <a href="/all_products/"
+                class="inline-block bg-blue-500 hover:bg-gray-900 text-white font-semibold py-2 mr-0 sm:mr-7 px-4 sm:py-3 sm:px-6 rounded-full transition duration-300 text-sm sm:text-base shadow-lg">
+                View More
+            </a>
+        </div>
+
+        <div
+            class="grid grid-cols-2 bg-white ml-0 sm:ml-4 w-full sm:w-[97%] min-h-0 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+            {% for product in products %}
+            <div class="text-center group">
+                <a href="/product_detail/{{ product.pro_id }}/" class="block">
+
+                    <div
+                        class="bg-white 
+              w-full mt-4
+              h-52 sm:h-72 md:h-80 lg:h-96 
+              flex items-center justify-center p-2 rounded-xl 
+              overflow-hidden relative border border-gray-100/0 hover:border-gray-100 transition duration-300 shadow-md hover:shadow-lg">
+                        <img src="/media/{{ product.pro_image }}/" alt="{{ product.pro_name }}"
+                            class="h-full w-auto object-contain transition duration-300 group-hover:scale-105">
+                    </div>
+
+                    <div class="mt-2 sm:mt-4">
+                        <p class="text-left text-base sm:text-lg font-bold text-gray-900 px-1 leading-snug">
+                            {{ product.pro_name }}
+                        </p>
+
+                        <p class="text-left text-sm text-gray-600 mt-1 font-awesome px-1">{{ product.pro_price|indian_format }}</p>
+
+                        {% if product.average_rating %}
+                            {% with rating=product.average_rating %}
+                            <div class="flex items-center space-x-2 text-sm sm:text-base px-1 mt-1">
+                                
+                                <!-- Stars -->
+                                <div class="flex text-blue-600 space-x-0.5 text-lg">
+                                    {% for i in "12345" %}
+                                        {% with star_index=i|add:"0" %}
+                                            {% if rating >= star_index %}
+                                                <!-- Full Star -->
+                                                <svg class="w-4 h-4 text-blue-600 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                                                    <polygon points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                                </svg>
+                                            {% elif rating > star_index|add:"-1" %}
+                                                <!-- Half Star -->
+                                                <svg class="w-4 h-4 inline-block" viewBox="0 0 20 20">
+                                                    <defs>
+                                                        <linearGradient id="half-{{ forloop.counter }}">
+                                                            <stop offset="50%" stop-color="#3B82F6"/>
+                                                            <stop offset="50%" stop-color="#d1d5db"/>
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <polygon fill="url(#half-{{ forloop.counter }})" points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                                </svg>
+                                            {% else %}
+                                                <!-- Empty Star -->
+                                                <svg class="w-4 h-4 text-gray-300 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                                                    <polygon points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                                </svg>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Rating Text -->
+                                <span class="text-gray-500 font-medium">
+                                    {{ rating|floatformat:1 }} ({{ product.reviews_count }})
+                                </span>
+
+                            </div>
+                            {% endwith %}
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <p>No products available right now.</p>
+            {% endfor %}
+
+        </div>
+    </div>
+</section>
+
+<section class="mx-auto px-4 sm:px-6 lg:px-8 md:mb-16">
+    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 md:mb-8">Shop By Category</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+
+        <div
+            class="category-mobile bg-gray-200 h-48 sm:h-64 md:h-80 rounded-xl p-4 sm:p-6 flex flex-col justify-between relative overflow-hidden shadow-lg transform transition duration-300 hover:scale-[1.02]">
+            <div class="absolute inset-0 bg-black opacity-10 rounded-xl"></div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white relative z-10">Mobile and Wearable Tech</h3>
+            <a href="#"
+                class="self-end bg-shop-btn hover:bg-shop-btn-hover text-white font-semibold py-1 px-4 sm:py-2 sm:px-6 rounded-md transition duration-300 relative z-10 text-sm sm:text-base">
+                Shop Now
+            </a>
+        </div>
+
+        <div
+            class="category-drones bg-gray-200 h-48 sm:h-64 md:h-80 rounded-xl p-4 sm:p-6 flex flex-col justify-between relative overflow-hidden shadow-lg transform transition duration-300 hover:scale-[1.02]">
+            <div class="absolute inset-0 bg-black opacity-10 rounded-xl"></div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white relative z-10">Drones and Cameras</h3>
+            <a href="#"
+                class="self-end bg-shop-btn hover:bg-shop-btn-hover text-white font-semibold py-1 px-4 sm:py-2 sm:px-6 rounded-md transition duration-300 relative z-10 text-sm sm:text-base">
+                Shop Now
+            </a>
+        </div>
+
+        <div
+            class="category-headphones bg-gray-200 h-48 sm:h-64 md:h-80 rounded-xl p-4 sm:p-6 flex flex-col justify-between relative overflow-hidden shadow-lg transform transition duration-300 hover:scale-[1.02]">
+            <div class="absolute inset-0 bg-black opacity-10 rounded-xl"></div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white relative z-10">Headphones and Speakers</h3>
+            <a href="#"
+                class="self-end bg-shop-btn hover:bg-shop-btn-hover text-white font-semibold py-1 px-4 sm:py-2 sm:px-6 rounded-md transition duration-300 relative z-10 text-sm sm:text-base">
+                Shop Now
+            </a>
+        </div>
+
+        <div
+            class="category-computers bg-gray-200 h-48 sm:h-64 md:h-80 rounded-xl p-4 sm:p-6 flex flex-col justify-between relative overflow-hidden shadow-lg transform transition duration-300 hover:scale-[1.02]">
+            <div class="absolute inset-0 bg-black opacity-10 rounded-xl"></div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white relative z-10">Computers</h3>
+            <a href="#"
+                class="self-end bg-shop-btn hover:bg-shop-btn-hover text-white font-semibold py-1 px-4 sm:py-2 sm:px-6 rounded-md transition duration-300 relative z-10 text-sm sm:text-base">
+                Shop Now
+            </a>
+        </div>
+
+        <div
+            class="category-tablets bg-gray-200 h-48 sm:h-64 md:h-80 rounded-xl p-4 sm:p-6 flex flex-col justify-between relative overflow-hidden shadow-lg transform transition duration-300 hover:scale-[1.02]">
+            <div class="absolute inset-0 bg-black opacity-10 rounded-xl"></div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white relative z-10">Tablets</h3>
+            <a href="#"
+                class="self-end bg-shop-btn hover:bg-shop-btn-hover text-white font-semibold py-1 px-4 sm:py-2 sm:px-6 rounded-md transition duration-300 relative z-10 text-sm sm:text-base">
+                Shop Now
+            </a>
+        </div>
+
+        <div
+            class="category-tv bg-gray-200 h-48 sm:h-64 md:h-80 rounded-xl p-4 sm:p-6 flex flex-col justify-between relative overflow-hidden shadow-lg transform transition duration-300 hover:scale-[1.02]">
+            <div class="absolute inset-0 bg-black opacity-10 rounded-xl"></div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white relative z-10">TV and Home Cinema</h3>
+            <a href="#"
+                class="self-end bg-shop-btn hover:bg-shop-btn-hover text-white font-semibold py-1 px-4 sm:py-2 sm:px-6 rounded-md transition duration-300 relative z-10 text-sm sm:text-base">
+                Shop Now
+            </a>
+        </div>
+    </div>
+
+</section>
+
+<section class="py-12 md:py-16 min-h-0 bg-white">
+    <div class="py-1 px-4 sm:px-6 lg:px-8 w-full">
+
+        <div class="flex justify-between items-center ml-0 sm:ml-4 md:mb-10">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Top Sellers</h2>
+            <a href="#"
+                class="inline-block bg-blue-500 hover:bg-gray-900 text-white font-semibold py-2 mr-0 sm:mr-7 px-4 sm:py-3 sm:px-6 rounded-full transition duration-300 text-sm sm:text-base shadow-lg">
+                View More
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 bg-white ml-0 sm:ml-4 w-full sm:w-[97%] min-h-0 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+            
+            {% for product in top_products %}
+            <div class="text-center group">
+                <a href="/product_detail/{{ product.pro_id }}/" class="block">
+
+                    <div class="bg-white w-full mt-4 h-52 sm:h-72 md:h-80 lg:h-96 flex items-center justify-center p-2 rounded-xl overflow-hidden relative border border-gray-100/0 hover:border-gray-100 transition duration-300 shadow-md hover:shadow-lg">
+                        <img src="/media/{{ product.pro_image }}/" alt="{{ product.pro_name }}"
+                            class="h-full w-auto object-contain transition duration-300 group-hover:scale-105">
+                    </div>
+
+                    <div class="mt-2 sm:mt-4">
+                        <p class="text-left text-base sm:text-lg font-bold text-gray-900 px-1 leading-snug">
+                            {{ product.pro_name }}
+                        </p>
+
+                        <p class="text-left text-sm text-gray-600 mt-1 font-awesome px-1">
+                            {{ product.pro_price|indian_format }}
+                        </p>
+
+                        {% if product.average_rating %}
+                        {% with rating=product.average_rating %}
+                        <div class="flex items-center space-x-2 text-sm sm:text-base px-1 mt-1">
+
+                            <div class="flex text-blue-600 space-x-0.5 text-lg">
+                                {% for i in "12345" %}
+                                    {% with star_index=i|add:"0" %}
+                                        {% if rating >= star_index %}
+                                            <svg class="w-4 h-4 text-blue-600 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                                                <polygon points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                            </svg>
+                                        {% elif rating > star_index|add:"-1" %}
+                                            <svg class="w-4 h-4 inline-block" viewBox="0 0 20 20">
+                                                <defs>
+                                                    <linearGradient id="half-{{ forloop.counter }}">
+                                                        <stop offset="50%" stop-color="#3B82F6"/>
+                                                        <stop offset="50%" stop-color="#d1d5db"/>
+                                                    </linearGradient>
+                                                </defs>
+                                                <polygon fill="url(#half-{{ forloop.counter }})" points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                            </svg>
+                                        {% else %}
+                                            <svg class="w-4 h-4 text-gray-300 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                                                <polygon points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                            </svg>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endfor %}
+                            </div>
+
+                            <span class="text-gray-500 font-medium">
+                                {{ rating|floatformat:1 }} ({{ product.reviews_count }})
+                            </span>
+
+                        </div>
+                        {% endwith %}
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+
+            {% empty %}
+            <p>No products available right now.</p>
+            {% endfor %}
+
+        </div>
+    </div>
+</section>
+
+<section class="md:py-1 bg-white mb-12">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 mb-8 md:mb-16">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-10 md:mb-8">Product Spotlight</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6  mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div
+            class="spotlight-card-1 h-[30vh] sm:h-[40vh] md:h-[55vh] rounded-xl p-6 flex flex-col justify-between relative shadow-xl overflow-hidden">
+            <a href="#"
+                class="absolute top-4 right-4 sm:top-6 sm:right-6 bg-shop-btn hover:bg-shop-btn-hover text-white font-semibold py-2 px-4 sm:px-6 rounded-md transition duration-300 z-10 text-sm sm:text-base">
+                Shop Now
+            </a>
+
+            <div class="relative z-10 mt-auto">
+                <h3 class="text-2xl sm:text-3xl font-bold text-white leading-tight mb-1">Pantony 6P Activity Tracker
+                </h3>
+                <p class="text-base sm:text-lg text-white font-semibold">Limited Edition</p>
+            </div>
+        </div>
+
+        <div
+            class="spotlight-card-2 h-[30vh] sm:h-[40vh] md:h-[55vh] rounded-xl p-6 flex flex-col justify-between relative shadow-xl overflow-hidden">
+            <a href="#"
+                class="absolute top-4 right-4 sm:top-6 sm:right-6 bg-shop-btn hover:bg-shop-btn-hover text-white font-semibold py-2 px-4 sm:px-6 rounded-md transition duration-300 z-10 text-sm sm:text-base">
+                Shop Now
+            </a>
+
+            <div class="relative z-10 mt-auto">
+                <h3 class="text-2xl sm:text-3xl font-bold text-white leading-tight mb-1">Portable Bluetooth Speaker
+                </h3>
+                <p class="text-base sm:text-lg text-white font-semibold">New Arrival</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

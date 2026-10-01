@@ -1,0 +1,395 @@
+{% load static %}
+{% load custom_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — Mobile Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .hidden-form {
+      display: none;
+    }
+  </style>
+
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+<header class="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg sticky top-0 z-50 fixed">
+  <div class="max-w-7xl mx-auto px-4 py-3 md:px-6 md:py-4 
+              flex justify-center md:justify-start items-center space-x-2">
+
+    <div>
+      <a href="/index/">
+        <h1 class="text-xl md:text-2xl font-bold text-white tracking-wide leading-none">
+          Electronic Store
+        </h1>
+        <p class="text-xs text-white italic mt-0.5 text-center md:text-left">
+          <span class="font-semibold text-yellow-300">Fast Delivery</span> Guaranteed!
+        </p>
+      </a>
+    </div>
+
+  </div>
+</header>
+
+
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+  <div class="max-w-7xl mx-auto py-10 px-4 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+
+
+    <!-- LEFT: Checkout Steps -->
+    <div class="md:col-span-2 space-y-6">
+
+      <div id="step2Container" class="bg-white rounded-lg shadow p-6">
+
+        <h2 id="step2Title" class="text-lg font-semibold mb-4">2. DELIVERY ADDRESS</h2>
+        <hr class="my-4 border-gray-300">
+
+
+        <div id="step2Content" class="step-content">
+
+          {% for addr in addresses %}
+          <div class="border rounded-lg p-4 mb-4 hover:border-blue-500">
+
+            <label class="flex justify-between items-start cursor-pointer">
+
+              <div class="flex items-start gap-3">
+                <input type="radio" name="selected_address" value="{{ addr.address_id }}"
+                  onclick="showDeliverButton({{ addr.address_id }})" class="h-4 w-4 mt-1">
+
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-medium">{{ addr.full_name }}</span>
+
+                    {% if addr.address_type == "Home" or addr.address_type == "home" %}
+                    <span class="text-sm text-gray-500 bg-gray-200 px-2 py-0.5 rounded">HOME</span>
+                    {% elif addr.address_type == "Work" or addr.address_type == "work" %}
+                    <span class="text-sm text-gray-500 bg-gray-200 px-2 py-0.5 rounded">WORK</span>
+                    {% endif %}
+
+                    <span class="ml-2 text-gray-500">{{ addr.phone }}</span>
+                  </div>
+
+                  <p class="text-gray-500 mt-1 text-sm">
+                    {{ addr.address_line }}, {{ addr.locality}}, {{ addr.city }}, {{ addr.state }} -
+                    <b>{{addr.pincode}}</b>
+                  </p>
+                </div>
+
+              </div>
+
+              <!-- EDIT BUTTON -->
+              <button type="button" class="text-blue-600 font-medium editBtn"
+                data-id="{{ addr.address_id }}"
+                data-full_name="{{ addr.full_name|escapejs }}"
+                data-mobile_number="{{ addr.mobile_number|escapejs }}"
+                data-pincode="{{ addr.pincode|escapejs }}"
+                data-locality="{{ addr.locality|escapejs }}"
+                data-address_line="{{ addr.address_line|escapejs }}"
+                data-city="{{ addr.city|escapejs }}"
+                data-state="{{ addr.state|escapejs }}"
+                data-landmark="{{ addr.landmark|default:''|escapejs }}"
+                data-alternate_phone="{{ addr.alternate_phone|default:''|escapejs }}"
+                data-address_type="{{ addr.address_type|escapejs }}">
+                EDIT
+              </button>
+
+            </label>
+
+            <!-- DELIVER BUTTON -->
+            <button id="deliverBtn{{ addr.address_id }}"
+              type="submit"
+              class="hidden mt-4 bg-orange-500 text-white px-6 py-2 rounded font-semibold"
+              onclick="goToOrderSummary({{ addr.address_id }})">
+              DELIVER HERE
+            </button>
+
+          </div>
+          {% endfor %}
+
+          <!-- ADD NEW ADDRESS -->
+          <button id="openAddressForm" class="mt-4 text-blue-600 font-medium flex items-center gap-1">
+            + Add a new address
+          </button>
+
+
+          <!-- NEW ADDRESS FORM -->
+          <form id="newAddressForm" method="POST" action="{% url 'save_and_deliver' %}"
+            class="hidden-form mt-5 bg-white border rounded-lg p-6 space-y-5">
+
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <input type="hidden" name="address_id" value="">
+                <label class="text-xs text-gray-500 font-semibold">Name</label>
+                <input type="text" name="full_name" class="w-full border rounded px-3 py-2 text-sm" required>
+              </div>
+
+              <div>
+                  <label class="text-xs text-gray-500 font-semibold">10-digit mobile number</label>
+                  <input 
+                      type="text" 
+                      name="mobile_number" 
+                      class="w-full border rounded px-3 py-2 text-sm" 
+                      required
+                      pattern="\d{10}"       
+                      maxlength="10"         
+                      oninput="this.value=this.value.replace(/[^0-9]/g,'')"  
+                      title="Please enter exactly 10 digits">
+              </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs text-gray-500 font-semibold">Pincode</label>
+                <input type="text" name="pincode" class="w-full border rounded px-3 py-2 text-sm" required>
+              </div>
+
+              <div>
+                <label class="text-xs text-gray-500 font-semibold">Locality</label>
+                <input type="text" name="locality" class="w-full border rounded px-3 py-2 text-sm" required>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs text-gray-500 font-semibold">Address (Area and Street)</label>
+              <textarea name="address_line" class="w-full border rounded px-3 py-2 text-sm h-20 resize-none" required></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs text-gray-500 font-semibold">City/District/Town</label>
+                <input type="text" name="city" class="w-full border rounded px-3 py-2 text-sm" required>
+              </div>
+
+              <div>
+                <label class="text-xs text-gray-500 font-semibold">State</label>
+                <select name="state" class="w-full border rounded px-3 py-2 text-sm" required>
+                  <option value="">--Select State--</option>
+                  <option>Gujarat</option>
+                  <option>Maharashtra</option>
+                  <option>Delhi</option>
+                  <option>Rajasthan</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="text-xs text-gray-500 font-semibold">Landmark (Optional)</label>
+                <input type="text" name="landmark" class="w-full border rounded px-3 py-2 text-sm">
+              </div>
+
+              <div>
+                  <label class="text-xs text-gray-500 font-semibold">Alternate Phone (Optional)</label>
+                  <input 
+                      type="text" 
+                      name="alternate_phone" 
+                      class="w-full border rounded px-3 py-2 text-sm"
+                      maxlength="10"                        
+                      oninput="this.value=this.value.replace(/[^0-9]/g,'')"  
+                      pattern="\d{10}"                     
+                      title="Please enter exactly 10 digits"
+                  >
+              </div>
+
+            </div>
+
+            <div>
+              <label class="text-xs text-gray-700 font-semibold block mb-2">Address Type</label>
+              <div class="flex items-center gap-6">
+                <label class="flex items-center gap-2 text-sm">
+                  <input type="radio" name="address_type" value="home" checked>
+                  Home
+                </label>
+
+                <label class="flex items-center gap-2 text-sm">
+                  <input type="radio" name="address_type" value="work">
+                  Work
+                </label>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-6">
+              <button type="submit" class="bg-orange-500 text-white px-6 py-3 rounded text-sm font-semibold">
+                SAVE AND DELIVER HERE
+              </button>
+
+              <button type="button" id="cancelForm" class="text-blue-600 font-semibold text-sm">
+                CANCEL
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+
+
+
+    <!-- RIGHT: PRICE DETAILS -->
+    <div class="bg-white rounded-lg shadow p-6 space-y-4 self-start">
+      <h2 class="text-lg font-semibold mb-4">PRICE DETAILS</h2>
+      <hr class="my-2 border-gray-300">
+
+      <div class="flex justify-between text-gray-700">
+        <span>Total MRP ({{ cart_total_items }} items)</span>
+        <span>{{ total_mrp|floatformat:0|indian_format }}</span>
+      </div>
+
+      <div class="flex justify-between text-gray-700">
+        <span>Total Selling Price</span>
+        <span>{{ total_price|floatformat:0|indian_format }}</span>
+      </div>
+
+      <div class="flex justify-between text-gray-700">
+        <span>Total Quantity</span>
+        <span>{{ cart_total_quantity }} items</span>
+      </div>
+
+      <div class="flex justify-between text-red-600 font-semibold">
+        <span>Total Discount</span>
+        <span>- {{ total_discount|floatformat:0|indian_format }}</span>
+      </div>
+
+      <hr class="my-2 border-gray-300">
+
+      <div class="flex justify-between font-semibold text-lg">
+        <span>Total Payable</span>
+        <span>{{ final_price|floatformat:0|indian_format }}</span>
+      </div>
+
+      <hr class="my-2 border-gray-300">
+
+      <p class="text-green-600 text-500">
+        Your Total Savings on this order {{ total_discount|floatformat:0|indian_format }}
+      </p>
+
+      <div class="flex items-center gap-2 text-gray-500 text-500 mt-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4" />
+        </svg>
+
+        <span>
+          Safe and Secure Payments. Easy returns. 100% Authentic products.
+        </span>
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+
+  <!-- JAVASCRIPT -->
+  <script>
+
+    /* -----------------------
+       🔥 PAGE LOAD FIX
+       FORM ALWAYS RESET
+    ------------------------*/
+    window.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("newAddressForm");
+        form.reset();
+        form.querySelector("input[name='address_id']").value = "";
+    });
+
+
+    function showDeliverButton(id) {
+      document.querySelectorAll("[id^='deliverBtn']").forEach(btn =>
+        btn.classList.add("hidden")
+      );
+      document.getElementById("deliverBtn" + id).classList.remove("hidden");
+    }
+
+
+    /* ADD NEW ADDRESS */
+    document.getElementById("openAddressForm").addEventListener("click", () => {
+      const form = document.getElementById("newAddressForm");
+      form.classList.remove("hidden-form");
+      document.getElementById("openAddressForm").style.display = "none";
+
+      form.reset();
+      form.querySelector("input[name='address_id']").value = "";
+    });
+
+
+    /* CANCEL FORM */
+    document.getElementById("cancelForm").addEventListener("click", () => {
+      const form = document.getElementById("newAddressForm");
+      form.classList.add("hidden-form");
+      document.getElementById("openAddressForm").style.display = "flex";
+
+      form.reset();
+      form.querySelector("input[name='address_id']").value = "";
+    });
+
+
+    /* EDIT BUTTON CLICK */
+    document.querySelectorAll(".editBtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+
+        const form = document.getElementById("newAddressForm");
+        form.classList.remove("hidden-form");
+        document.getElementById("openAddressForm").style.display = "none";
+
+        form.querySelector("input[name='address_id']").value = btn.dataset.id;
+        form.querySelector("input[name='full_name']").value = btn.dataset.full_name;
+        form.querySelector("input[name='mobile_number']").value = btn.dataset.mobile_number;
+        form.querySelector("input[name='pincode']").value = btn.dataset.pincode;
+        form.querySelector("input[name='locality']").value = btn.dataset.locality;
+        form.querySelector("textarea[name='address_line']").value = btn.dataset.address_line;
+        form.querySelector("input[name='city']").value = btn.dataset.city;
+        form.querySelector("select[name='state']").value = btn.dataset.state;
+        form.querySelector("input[name='landmark']").value = btn.dataset.landmark;
+        form.querySelector("input[name='alternate_phone']").value = btn.dataset.alternate_phone;
+
+        if (btn.dataset.address_type.toLowerCase() === "home") {
+          form.querySelector("input[name='address_type'][value='home']").checked = true;
+        } else {
+          form.querySelector("input[name='address_type'][value='work']").checked = true;
+        }
+      });
+    });
+
+
+    /* GO TO SUMMARY */
+    function goToOrderSummary(addressId) {
+
+      const csrf = document.getElementById("csrf_token").value;
+
+      fetch("/setAddress/", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": csrf,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ address_id: addressId })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "ok") {
+            window.location.href = "/orderSummary/";
+          }
+        })
+        .catch(err => console.log("Error:", err));
+    }
+
+  </script>
+
+</body>
+
+</html>

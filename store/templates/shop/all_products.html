@@ -1,0 +1,112 @@
+{% extends 'shop/Base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}{{ product.pro_name }} — Product Details{% endblock %}
+
+{% block content %}
+
+<body class="bg-white w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-4 text-sm mt-10">
+        <a href="/index/" class="breadcrumb-link hover:text-gray-800">Home</a>
+        <span class="mx-2 text-gray-300">/</span>
+        <a href="#" class="text-gray-900 font-medium">All Products</a>
+    </div>
+
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-3 flex justify-center items-center">
+        <h1 class="text-3xl lg:text-2xl font-semibold text-gray-900">All Products</h1>
+    </div>
+
+    <div class="lg:hidden w-full px-4 sm:px-6 py-2 mb-4">
+        <div class="flex justify-between items-center">
+            <p class="text-sm text-gray-600">{{ product_count }} products</p>
+        </div>
+    </div>
+
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col lg:flex-row gap-10">
+
+            <main class="flex-1">
+
+                <div class="hidden lg:flex justify-between items-center pb-4 mb-2">
+                    <p class="text-sm text-gray-600">{{ product_count }} products</p>
+                </div>
+
+                <div
+                    class="grid grid-cols-2 bg-white ml-0 sm:ml-4 w-full sm:w-[97%] min-h-0 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+                    {% for product in products %}
+                    <div class="text-center group">
+                        <a href="/product_detail/{{ product.pro_id }}/" class="block">
+
+                            <div
+                                class="bg-white 
+              w-full mt-4
+              h-52 sm:h-72 md:h-80 lg:h-96 
+              flex items-center justify-center p-2 rounded-xl 
+              overflow-hidden relative border border-gray-100/0 hover:border-gray-100 transition duration-300 shadow-md hover:shadow-lg">
+                                <img src="/media/{{ product.pro_image }}/" alt="{{ product.pro_name }}"
+                                    class="h-full w-auto object-contain transition duration-300 group-hover:scale-105">
+                            </div>
+
+                            <div class="mt-2 sm:mt-4">
+                                <p class="text-left text-base sm:text-lg font-bold text-gray-900 px-1 leading-snug">
+                                    {{ product.pro_name }}
+                                </p>
+
+                                <p class="text-left text-sm text-gray-600 mt-1 font-awesome px-1">
+                                    {{ product.pro_price|indian_format }}
+                                </p>
+
+                                {% if product.average_rating %}
+                                {% with rating=product.average_rating %}
+                                <div class="flex items-center space-x-2 text-sm sm:text-base px-1 mt-1">
+
+                                    <div class="flex text-blue-600 space-x-0.5 text-lg">
+                                        {% for i in "12345" %}
+                                            {% with star_index=i|add:"0" %}
+                                                {% if rating >= star_index %}
+                                                    <svg class="w-4 h-4 text-blue-600 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                                                        <polygon points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                                    </svg>
+                                                {% elif rating > star_index|add:"-1" %}
+                                                    <svg class="w-4 h-4 inline-block" viewBox="0 0 20 20">
+                                                        <defs>
+                                                            <linearGradient id="half-{{ forloop.counter }}">
+                                                                <stop offset="50%" stop-color="#3B82F6"/>
+                                                                <stop offset="50%" stop-color="#d1d5db"/>
+                                                            </linearGradient>
+                                                        </defs>
+                                                        <polygon fill="url(#half-{{ forloop.counter }})" points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                                    </svg>
+                                                {% else %}
+                                                    <svg class="w-4 h-4 text-gray-300 inline-block" fill="currentColor" viewBox="0 0 20 20">
+                                                        <polygon points="10,1 12.59,7.09 19.51,7.63 14,12.27 15.18,19.18 10,16 4.82,19.18 6,12.27 0.49,7.63 7.41,7.09"/>
+                                                    </svg>
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </div>
+
+                                    <span class="text-gray-500 font-medium">
+                                        {{ rating|floatformat:1 }} ({{ product.reviews_count }})
+                                    </span>
+
+                                </div>
+                                {% endwith %}
+                                {% endif %}
+                            </div>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p>No products available right now.</p>
+                    {% endfor %}
+
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+</body>
+
+{% endblock %}

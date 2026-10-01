@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-lg">
+    <h2 class="text-2xl font-bold mb-6 text-gray-700 text-center">Add New Product</h2>
+
+    <form action="#" method="POST" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+
+      <div>
+        <label for="category" class="block text-gray-700 mb-2">Category</label>
+        <select name="cat_id" id="category" class="w-full px-4 py-2 border rounded-md">
+          <option value="">-- Select Category --</option>
+          {% for cat in catData %}
+          <option value="{{ cat.cat_id }}">{{ cat.cat_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+
+      <!-- Product Name -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Product Name</label>
+        <input type="text" name="pro_name" required
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+      <!-- Brand -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Brand</label>
+        <input type="text" name="pro_brand" required
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Description</label>
+        <textarea name="pro_description" rows="3" 
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+      </div>
+
+      <!-- Price -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Price (₹)</label>
+        <input type="number" name="pro_price" min="0" step="0.01" required
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+      <!-- MRP Original price -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">MRP (Original Price) (₹)</label>
+        <input type="number" name="pro_mrp" min="0" step="0.01" 
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+      <!-- Stock -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Stock Quantity</label>
+        <input type="number" name="pro_stock" min="0" required
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+      <!-- Image Upload -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Product Image</label>
+        <input type="file" name="pro_image" accept="image/*" required
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+      </div>
+
+      <!-- RAM -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">RAM</label>
+        <input type="text" name="ram" id="ramInput" placeholder="e.g. 8 GB or 12 GB RAM" 
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+      <!-- Storage (auto-filled based on RAM) -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Storage</label>
+        <input type="text" name="storage" id="storageInput" placeholder="e.g. 256 GB or 512 GB ROM" 
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50">
+      </div>
+
+      <!-- Display -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Display</label>
+        <input type="text" name="display" placeholder="e.g. 17.27 cm (6.8 inch) Quad HD+" 
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+      <!-- Rear Camera -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Rear Camera</label>
+        <input type="text" name="rear_camera" placeholder="e.g. 200MP + 50MP + 12MP + 10MP" 
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+      <!-- Front Camera -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Front Camera</label>
+        <input type="text" name="front_camera" placeholder="e.g. 12MP" 
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+      <!-- Battery -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Battery</label>
+        <input type="text" name="battery" placeholder="e.g. 5000 mAh" 
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+      <!-- Processor -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-1">Processor</label>
+        <input type="text" name="processor" placeholder="e.g. Snapdragon 8 Gen 3" 
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+
+
+      <!-- Submit Button -->
+      <div class="text-center">
+        <button type="submit"
+          class="bg-blue-600 text-white font-medium px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+          Save Product
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</body>
+
+</html>

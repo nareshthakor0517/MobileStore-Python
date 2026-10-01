@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" class="transition-colors duration-500">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Login | Electronic Store </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Custom Styles for Input Icon Spacing */
+    .input-with-icon {
+      padding-left: 2.75rem;
+      /* Space for the icon (p-4 + padding) */
+    }
+  </style>
+
+  <script>
+    // Tailwind dark mode config
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'primary-blue': '#3b82f6', // blue-500
+            'primary-hover': '#2563eb', // blue-600
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body
+  class="bg-gray-50 dark:bg-gray-900 flex items-center justify-center min-h-screen transition-colors duration-500 p-4 sm:p-6 md:p-8">
+
+  <div
+    class="bg-white dark:bg-gray-800 p-6 sm:p-10 rounded-xl lg:rounded-2xl shadow-xl w-full max-w-sm sm:max-w-md transition-colors duration-500 border border-gray-200 dark:border-gray-700">
+
+    <div class="flex justify-between items-start mb-6">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 dark:text-white">Login In</h1>
+      <button id="themeToggle"
+        class="p-2 rounded-full text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+        <i data-lucide="moon" class="w-6 h-6"></i>
+      </button>
+    </div>
+
+    <p class="text-gray-500 dark:text-gray-400 mb-8 text-sm sm:text-base">Welcome back! Please enter your details.</p>
+
+    <form method="POST" class="space-y-6">
+      {% csrf_token %}
+
+      {% if messages %}
+      <div class="p-3 bg-red-100 dark:bg-red-900/40 border border-red-400 rounded-lg mb-4">
+        {% for message in messages %}
+        <p class="text-center text-red-600 dark:text-red-300 font-medium text-sm">{{ message }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div>
+        <label for="id_email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email
+          Address</label>
+        <div class="relative">
+          <i data-lucide="mail"
+            class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500"></i>
+
+          <input type="email" name="user_email" id="id_email" placeholder="Enter your email"
+            class="w-full input-with-icon px-11 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue transition text-base"
+            required>
+        </div>
+      </div>
+
+      <div class="relative">
+        <label for="id_password"
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+        <div class="relative">
+          <i data-lucide="lock"
+            class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500"></i>
+
+          <input type="password" name="user_password" id="id_password" placeholder="Enter your password"
+            class="w-full input-with-icon px-11 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue transition text-base"
+            required>
+
+          <button type="button" onclick="togglePassword('id_password', this)"
+            class="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-gray-500 dark:text-gray-300 hover:text-primary-blue transition rounded-full focus:outline-none">
+            <i data-lucide="eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <a href="{% url 'forgot_password' %}"
+          class="text-sm font-medium text-primary-blue hover:text-primary-hover hover:underline transition">
+          Forgot Password?
+        </a>
+      </div>
+
+
+      <button type="submit"
+        class="w-full bg-primary-blue hover:bg-primary-hover text-white font-semibold py-3 px-4 rounded-lg transition shadow-md hover:shadow-lg focus:ring-4 focus:ring-primary-blue/50">
+        Secure Login
+      </button>
+    </form>
+
+    <p class="text-center text-gray-500 dark:text-gray-400 mt-8 text-sm">
+      Don’t have an account?
+      <a href="/register/" class="text-primary-blue hover:text-primary-hover font-semibold hover:underline">Create
+        Account</a>
+    </p>
+  </div>
+
+  <script>
+    // Eye toggle logic (Improved to handle button position)
+    function togglePassword(id, button) {
+      const input = document.getElementById(id);
+      const icon = button.querySelector("i");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.setAttribute("data-lucide", "eye-off");
+      } else {
+        input.type = "password";
+        icon.setAttribute("data-lucide", "eye");
+      }
+      lucide.createIcons();
+    }
+
+    // Theme Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+
+    // Load theme based on system or saved setting
+    const updateThemeIcon = (isDark) => {
+      const iconName = isDark ? 'sun' : 'moon';
+      themeToggle.innerHTML = `<i data-lucide="${iconName}" class="w-6 h-6"></i>`;
+    };
+
+    const loadInitialTheme = () => {
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        html.classList.add('dark');
+        updateThemeIcon(true);
+      } else {
+        html.classList.remove('dark');
+        updateThemeIcon(false);
+      }
+      lucide.createIcons();
+    }
+
+    loadInitialTheme();
+
+    // Toggle theme
+    themeToggle.addEventListener('click', () => {
+      html.classList.toggle('dark');
+      const isDark = html.classList.contains('dark');
+      if (isDark) {
+        localStorage.theme = 'dark';
+      } else {
+        localStorage.theme = 'light';
+      }
+      updateThemeIcon(isDark);
+      lucide.createIcons();
+    });
+
+    // Initialize all Lucide icons on page load
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>

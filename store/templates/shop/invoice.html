@@ -1,0 +1,213 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electronic Store Tax Invoice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom print-friendly styles for invoice */
+        @media print {
+            body {
+                background-color: #fff !important;
+                /* White background for printing */
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .invoice-container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+        }
+
+        /* Amazon-like Primary Blue */
+        .amazon-blue {
+            background-color: #131921;
+            /* Dark blue header */
+        }
+
+        .amazon-link-color {
+            color: #0066c0;
+            /* Amazon's standard link/action color */
+        }
+
+        .text-amazon-dark {
+            color: #333333;
+        }
+
+        .border-amazon-light {
+            border-color: #e6e6e6;
+        }
+
+        /* Font Size adjustment for details */
+        .text-xxs {
+            font-size: 0.65rem;
+        }
+
+        .text-xs {
+            font-size: 0.75rem;
+        }
+
+        .font-signature {
+            /* उदाहरण के लिए, एक सामान्य स्क्रिप्ट फ़ॉन्ट */
+            font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+            font-weight: 500;
+            /* थोड़ा मोटा अक्षर */
+            color: #2e8b57;
+            /* गहरा हरा/काला रंग प्रोफेशनल लुक देगा */
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 p-8">
+
+    <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-lg invoice-container p-8">
+
+        <header class="flex flex-col sm:flex-row justify-between items-start border-b pb-4 mb-6">
+            <div class="flex items-center mb-4 sm:mb-0">
+                <h1 class="text-2xl sm:text-3xl font-bold text-amazon-dark">Tax Invoice / Bill of Supply</h1>
+            </div>
+            <div class="text-left sm:text-right">
+                <p class="text-sm font-semibold mb-2 sm:mb-0">
+                    <button onclick="window.print()"
+                        class="no-print amazon-link-color hover:underline text-base cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m4 1h1a2 2 0 002-2v-3H8v3a2 2 0 002 2zm-5-.5h10V18H5.5zM17 9V3H7v6" />
+                        </svg>
+                        Print Invoice
+                    </button>
+                </p>
+                <p class="text-xs text-gray-500 mt-1">Invoice Date: {{ invoice_date|date:"d M, Y" }}</p>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6 text-xs border-b pb-4">
+            <div>
+                <h3 class="font-bold text-amazon-dark mb-1">Sold By:</h3>
+                <p class="font-semibold text-sm">Shree Ram Enterprises (Pvt. Ltd.)</p>
+                <p>517 Seller ShreeNath, Gandhinagar City</p>
+                <p>State - Gujarat</p>
+                <p>GSTIN: XXABCDE1234F1Z5</p>
+            </div>
+
+            <div>
+                <h3 class="font-bold text-amazon-dark mb-1">Billing Address:</h3>
+                <p class="font-semibold text-sm">{{ billing_address.full_name }}</p>
+                <p>{{ billing_address.line1 }}</p>
+                <p>{{ billing_address.city }}, {{ billing_address.state }} - {{ billing_address.pincode }}</p>
+                <p>Phone: {{ billing_address.mobile_number }}</p>
+            </div>
+
+            <div>
+                <h3 class="font-bold text-amazon-dark mb-1">Shipping Address:</h3>
+                <p class="font-semibold text-sm">{{ shipping_address.full_name }}</p>
+                <p>{{ shipping_address.line1 }}</p>
+                <p>{{ shipping_address.city }}, {{ shipping_address.state }} - {{ shipping_address.pincode }}</p>
+                <p>Phone: {{ shipping_address.mobile_number }}</p>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center text-xs mb-6 p-3 bg-gray-50 border border-gray-200 rounded-md">
+            <div>
+                <p><span class="font-semibold">Order ID:</span> {{ order.order_id }}</p>
+                <p><span class="font-semibold">Order Date:</span> {{ order.created_at|date:"d M, Y" }}</p>
+            </div>
+            <div class="text-right">
+                <p><span class="font-semibold">Payment Method:</span> {{ order.payment_method }}</p>
+                <p><span class="font-semibold">Invoice No:</span> {{ invoice_number }}</p>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="font-bold text-amazon-dark mb-2 text-lg">Order Items:</h3>
+            <!-- Responsive wrapper -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-left text-xs text-amazon-dark border-collapse">
+                    <thead>
+                        <tr class="border-b border-amazon-light bg-gray-50 uppercase text-xs font-semibold">
+                            <th class="py-2 px-2 sm:px-4">Description</th>
+                            <th class="py-2 px-2 sm:px-4 text-center">Qty</th>
+                            <th class="py-2 px-2 sm:px-4 text-right">Unit Price (₹)</th>
+                            <th class="py-2 px-2 sm:px-4 text-right">Taxable Value (₹)</th>
+                            <th class="py-2 px-2 sm:px-4 text-right">GST Rate</th>
+                            <th class="py-2 px-2 sm:px-4 text-right">GST Amt (₹)</th>
+                            <th class="py-2 px-2 sm:px-4 text-right">Total (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr class="border-b border-amazon-light hover:bg-yellow-50/20">
+                            <td class="py-2 px-2 sm:py-3 sm:px-4">
+                                {{ item.pro_name }}
+                            </td>
+                            <td class="py-2 px-2 sm:py-3 sm:px-4 text-center">{{ item.quantity }}</td>
+                            <td class="py-2 px-2 sm:py-3 sm:px-4 text-right">{{ item.unit_price|indian_format }}</td>
+                            <td class="py-2 px-2 sm:py-3 sm:px-4 text-right">{{ item.taxable_value|indian_format }}</td>
+                            <td class="py-2 px-2 sm:py-3 sm:px-4 text-right">{{ item.gst_rate }}%</td>
+                            <td class="py-2 px-2 sm:py-3 sm:px-4 text-right">{{ item.gst_amount|indian_format }}</td>
+                            <td class="py-2 px-2 sm:py-3 sm:px-4 text-right font-semibold">{{ item.total_item_amount|indian_format }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="flex justify-end">
+            <div class="w-full max-w-sm">
+                <div class="text-xs space-y-1 border-t pt-2">
+                    <div class="flex justify-between">
+                        <p>Subtotal (Excl. Tax):</p>
+                        <p class="font-semibold">{{ subtotal_excl_tax|floatformat:2|indian_format }}</p>
+                    </div>
+                    <div class="flex justify-between">
+                        <p>Total GST:</p>
+                        <p class="font-semibold">{{ total_gst|floatformat:2|indian_format }}</p>
+                    </div>
+                    <div class="flex justify-between">
+                        <p>Shipping/Delivery Charges:</p>
+                        <p class="font-semibold">₹0</p>
+                    </div>
+                    <div class="flex justify-between font-bold text-sm border-t pt-2 mt-2 text-amazon-dark">
+                        <p>Grand Total (Incl. all taxes):</p>
+                        <p>{{ total_amount|floatformat:2|indian_format }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-8 pt-4 border-t border-amazon-light text-xs text-gray-500">
+            <p class="mb-2">Amount in Words: Rupees {{ order.total_amount_in_words }} Only.</p>
+            <p class="mb-4 italic">This is a computer-generated invoice and does not require a signature.</p>
+
+            <div class="text-right mt-4">
+                <p class="font-signature text-2xl sm:text-3xl md:text-2xl mb-1 text-amazon-dark leading-tight">
+                    Jay Shree Ram
+                </p>
+                <p class="font-semibold text-amazon-dark text-sm sm:text-base">Seller Name :- Shree Nath</p>
+                <p class="mt-1 text-xs sm:text-sm">Authorized Signatory</p>
+            </div>
+        </footer>
+
+    </div>
+
+    <div class="no-print text-center mt-6">
+        <button onclick="window.location.href='{% url 'my_orders' %}'" 
+        class="text-sm amazon-link-color hover:underline">
+            Close Window
+        </button>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,295 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* CSS is kept exactly as you provided */
+        .dark-bg { background-color: #000000; } 
+        .dark-text { color: #f0f0f0; } 
+        .otp-input-dark {
+            width: 3.5rem; height: 3.5rem; text-align: center; font-size: 1.5rem;
+            background-color: #222222; color: #f0f0f0; border: 2px solid #555555; 
+            border-radius: 0.5rem; outline: none; transition: border-color 0.3s;
+        }
+        .otp-input-dark:focus { border-color: #4f46e5; }
+        .otp-correct { border-color: #10b981 !important; }
+        .otp-wrong { border-color: #ef4444 !important; }
+        .header-color { color: #5eead4; } 
+        .timer-color { color: #10b981; } 
+        #resetPasswordSection { display: none; }
+        #resendLink:hover { text-decoration: underline; }
+    </style>
+</head>
+
+<body class="dark-bg min-h-screen flex items-center justify-center">
+
+    <div class="max-w-xl w-full p-8 rounded-lg">
+
+        <h1 class="text-4xl font-extrabold mb-8 header-color text-center">OTP Verification</h1>
+        
+        {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <p class="text-center {% if message.tags == 'error' %}text-red-500{% else %}text-green-500{% endif %} font-semibold dark-text">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <p class="mb-8 dark-text text-xl text-center">
+            Enter The OTP Sent To <span id="mobileNumber" class="font-semibold">{{ user_contact }}</span> 
+            <a href="{% url 'forgot_password' %}" class="text-blue-400 hover:text-blue-300 underline italic ml-2">Edit</a>
+        </p>
+
+        <div id="otpSection">
+            <div class="flex justify-center space-x-3 mb-2">
+                <input type="text" maxlength="1" class="otp-input-dark" data-otp-index="0" required inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-input-dark" data-otp-index="1" required inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-input-dark" data-otp-index="2" required inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-input-dark" data-otp-index="3" required inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-input-dark" data-otp-index="4" required inputmode="numeric" pattern="[0-9]*">
+                <input type="text" maxlength="1" class="otp-input-dark" data-otp-index="5" required inputmode="numeric" pattern="[0-9]*">
+            </div>
+            
+            <p id="otpErrorMessage" class="text-center text-red-500 text-sm mb-6 font-medium" style="display:none;">
+                ⚠️ **OTP did not match or has expired. Please check again.**
+            </p>
+
+            <div class="text-center">
+                <div id="resendContainer" class="text-gray-400 text-base mb-6">
+                    Resend OTP in <span id="timer" class="font-semibold timer-color">30</span>s
+                </div>
+
+                <span id="resendLink" class="font-semibold cursor-pointer text-blue-400" style="display:none;">
+                    Resend OTP
+                </span>
+            </div>
+        </div>
+        
+        <div id="resetPasswordSection" class="mt-8">
+            <h2 class="text-2xl font-bold dark-text mb-6 text-center">Set New Password</h2>
+            
+            <form action="{% url 'reset_password' %}" method="POST" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value="{{ user_id }}">
+                
+                <div>
+                    <input type="password" name="new_password" placeholder="New Password (4-10 chars)" required
+                        minlength="4" maxlength="10"
+                        class="w-full bg-gray-800 text-white border border-gray-600 rounded-lg p-3 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
+                </div>
+                <div>
+                    <input type="password" name="confirm_password" placeholder="Confirm New Password (4-10 chars)" required
+                        minlength="4" maxlength="10"
+                        class="w-full bg-gray-800 text-white border border-gray-600 rounded-lg p-3 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
+                </div>
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition duration-300">
+                    Reset Password
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const inputs = document.querySelectorAll('.otp-input-dark');
+        const resendLink = document.getElementById('resendLink');
+        const timerEl = document.getElementById('timer');
+        const resendContainer = document.getElementById('resendContainer');
+        const otpSection = document.getElementById('otpSection');
+        const resetSection = document.getElementById('resetPasswordSection');
+        const otpErrorMsg = document.getElementById('otpErrorMessage'); 
+
+        // 🚀 Timer Initialization: Use time_remaining from Django context 
+        let timeLeft = parseInt("{{ time_remaining|default:0 }}"); 
+        let countdown;
+        
+        // --- 1. Initial State Check for Django Messages ---
+        const hasMessages = document.querySelector('.text-red-500.dark-text') || document.querySelector('.text-green-500.dark-text');
+        if (hasMessages) {
+             otpSection.style.display = 'none';
+             resetSection.style.display = 'block';
+        }
+        
+        // --- 2. Timer Logic ---
+        function startTimer(initialTime = timeLeft) { 
+            clearInterval(countdown);
+            timeLeft = initialTime > 0 ? initialTime : 30; 
+            timerEl.textContent = timeLeft;
+            resendLink.style.display = 'none'; 
+            resendContainer.style.display = 'block';
+
+            countdown = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    resendContainer.style.display = 'none'; 
+                    resendLink.style.display = 'inline'; 
+                }
+            }, 1000);
+        }
+        
+        // --- 3. Verify OTP via Server (AJAX) ---
+        function verifyOtpOnServer(enteredOTP) {
+            inputs.forEach(i => { i.classList.remove('otp-correct', 'otp-wrong'); });
+            otpErrorMsg.style.display = 'none'; 
+
+            fetch("{% url 'verify_otp_check' %}", { 
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ otp: enteredOTP })
+            })
+            .then(res => res.json())
+            .then(data => {
+                // 🚨 AJAX Session Loss/Redirect Check
+                if (data.status === 'redirect' && data.url) {
+                    window.location.href = "{% url 'forgot_password' %}";
+                    return;
+                }
+
+                if (data.status === 'ok') {
+                    inputs.forEach(i => { i.classList.add('otp-correct'); });
+                    
+                    clearInterval(countdown);
+                    setTimeout(() => {
+                        otpSection.style.display = 'none';
+                        resetSection.style.display = 'block'; 
+                    }, 500); 
+                } else {
+                    inputs.forEach(i => { i.classList.add('otp-wrong'); });
+                    otpErrorMsg.textContent = data.error || "OTP did not match or has expired. Please check again.";
+                    otpErrorMsg.style.display = 'block'; 
+                    
+                    setTimeout(() => {
+                        inputs.forEach(i => i.value = '');
+                        inputs[0].focus();
+                        inputs.forEach(i => { i.classList.remove('otp-wrong'); });
+                        
+                        // ❌ Hide error message after 2 seconds
+                        setTimeout(() => {
+                           otpErrorMsg.style.display = 'none';
+                        }, 2000); 
+                    }, 1000);
+                }
+            });
+        }
+
+        // --- 4. OTP Input Handling ---
+        function checkOtpAuto() {
+            let enteredOTP = '';
+            inputs.forEach(i => enteredOTP += i.value);
+            if (enteredOTP.length === 6) {
+                verifyOtpOnServer(enteredOTP);
+            }
+        }
+
+        inputs.forEach((input, index) => {
+            // ✅ NEW: Prevent non-numeric key presses
+            input.addEventListener('keydown', (e) => {
+                // Allow control keys (Backspace, Delete, Tab, Arrows, Enter, etc.)
+                if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Tab' || e.key.includes('Arrow') || e.key === 'Enter') {
+                    return;
+                }
+                // Check if the key pressed is a number (0-9)
+                if (!/\d/.test(e.key)) {
+                    // Also prevent space bar
+                    if (e.key === ' ') {
+                        e.preventDefault();
+                    }
+                    // Prevent non-numeric characters (except those handled above)
+                    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            input.addEventListener('input', () => {
+                // 🛑 Force cleanup: Remove any non-digit characters that might slip through (e.g., paste)
+                input.value = input.value.replace(/\D/g, ''); 
+
+                if (input.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+                checkOtpAuto(); 
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && input.value.length === 0 && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        // --- 5. Resend Link Action (Prevent Double Click) ---
+        resendLink.addEventListener('click', () => {
+             otpErrorMsg.style.display = 'none';
+             
+             // 🛑 Immediately hide the link to prevent double-click
+             resendLink.style.display = 'none'; 
+
+             fetch("{% url 'resend_otp' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(data => {
+                 // 🚨 AJAX Session Loss/Redirect Check
+                if (data.status === 'redirect' && data.url) {
+                    window.location.href = "{% url 'forgot_password' %}";
+                    return;
+                }
+
+                if (data.status === 'ok') {
+                    // Success: Start timer from 30 seconds and clear inputs
+                    inputs.forEach(i => { 
+                        i.value = '';
+                        i.classList.remove('otp-correct', 'otp-wrong');
+                    });
+                    inputs[0].focus();
+                    startTimer(30); 
+                } else {
+                    // Error: Show error message and display resend link again
+                     console.error("Resend Error:", data.error || "Failed to resend OTP.");
+                     otpErrorMsg.textContent = data.error || "An error occurred while sending OTP.";
+                     otpErrorMsg.style.display = 'block';
+                     
+                     // ❌ Hide error message after 2 seconds
+                     setTimeout(() => {
+                        otpErrorMsg.style.display = 'none';
+                     }, 2000); 
+                     
+                     // If Resend failed (e.g., Cool-down error from backend), show link again (if timer isn't running)
+                     if (timeLeft <= 0) {
+                         resendLink.style.display = 'inline'; 
+                     }
+                }
+            });
+        });
+
+        // --- 6. Initial Timer Start ---
+        // Start timer only if the reset form is not displayed AND time remains
+        if (otpSection.style.display !== 'none' && !hasMessages) {
+             if (timeLeft > 0) {
+                 // Start the timer only if time_remaining is greater than 0
+                 document.addEventListener('DOMContentLoaded', () => startTimer(timeLeft));
+             } else {
+                 // If time already expired on load, show resend link immediately
+                 resendContainer.style.display = 'none'; 
+                 resendLink.style.display = 'inline'; 
+             }
+        }
+    </script>
+</body>
+</html>

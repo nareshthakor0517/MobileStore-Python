@@ -1,0 +1,265 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .modal-fade {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .modal-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        .modal-visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .text-yellow-400 {
+            color: #facc15;
+        }
+
+        .text-yellow-300 {
+            color: #fde68a;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-blue-600">My Orders</h1>
+            <a href="/index/" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Home</a>
+        </div>
+    </header>
+
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 py-4">
+        {% for message in messages %}
+        <div class="mb-2 px-4 py-2 rounded {{ message.tags|default:'bg-blue-100 text-blue-700' }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="max-w-7xl mx-auto py-8 px-4">
+        {% if orders %}
+        <div class="grid gap-6">
+            {% for order in orders %}
+            <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden card-hover">
+                <div class="p-6 flex justify-between items-center border-b border-gray-100">
+                    <div>
+                        <h2 class="text-xl font-semibold">Order #{{ order.order_id }}</h2>
+                        <p class="text-sm text-gray-500">Placed on {{ order.created_at|date:"d M, Y H:i" }}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-sm
+                    {% if order.order_status == 'Confirmed' %}bg-green-100 text-green-700
+                    {% elif order.order_status == 'Shipped' %}bg-yellow-100 text-yellow-700
+                    {% elif order.order_status == 'Delivered' %}bg-blue-100 text-blue-700
+                    {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ order.order_status }}
+                    </span>
+                </div>
+
+                <div class="p-6">
+                    {% for item in order.items.all %}
+                    <div
+                        class="flex items-center justify-between border-b border-gray-100 py-3 hover:bg-gray-50 transition rounded-md px-2">
+                        <div class="flex items-center gap-4">
+                            <img src="{{ item.pro_id.pro_image.url }}" alt="{{ item.pro_id.pro_name }}"
+                                class="w-18 h-16 object-cover rounded-md">
+                            <div>
+                                <h3 class="font-medium text-gray-800">{{ item.pro_id.pro_name }}</h3>
+                                <p class="text-sm text-gray-500">Qty: {{ item.quantity }}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                            <p class="font-semibold text-gray-800">{{ item.price|floatformat:0|indian_format }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="p-6 flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-50 gap-4 md:gap-0">
+                    <p class="font-semibold text-gray-700">Total: {{ order.total_amount|floatformat:0|indian_format }}</p>
+                    
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                        <a href="/track/{{ order.order_id }}/"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center w-full sm:w-auto">
+                            Track Order
+                        </a>
+                        
+                        {% with first_item=order.items.all.0 %}
+                        {% if first_item %}
+                            {% if first_item.already_reviewed %} 
+                                <button class="px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed w-full sm:w-auto" disabled>Reviewed</button>
+                            {% else %}
+                                <button type="button" 
+                                    data-order="{{ order.order_id }}" 
+                                    data-product="{{ first_item.pro_id.pk }}" 
+                                    class="open-review-btn px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition w-full sm:w-auto">
+                                    Review
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                        {% endwith %}
+
+                        {% if order.order_status == 'Delivered' %}
+                        <a href="{% url 'invoice' order_id=order.order_id %}" 
+                            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold text-center w-full sm:w-auto">
+                            Download Invoice
+                        </a>
+                        {% endif %}
+                    </div>  
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center text-gray-500 mt-20 text-lg">You have not placed any orders yet.</p>
+        {% endif %}
+    </main>
+
+    <div id="review-modal"
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 modal-fade modal-hidden px-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative">
+            <button id="close-review-modal"
+                class="absolute top-3 right-3 w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700">✕</button>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Write a Review</h2>
+            <form id="review-form" method="POST" action="{% url 'submit_review' %}">
+                {% csrf_token %}
+                <input type="hidden" name="order_id" id="order-id">
+                <input type="hidden" name="product_id" id="product-id">
+                <input type="hidden" name="rating" id="rating-input" required>
+                <div class="flex items-center mb-4">
+                    <span class="text-gray-600 mr-2 font-medium">Rating:</span>
+                    <div id="star-rating" class="flex gap-1 cursor-pointer">
+                        {% for i in "12345" %}
+                        <svg data-value="{{ i }}"
+                            class="w-6 h-6 text-gray-300 fill-current transition-colors duration-150"
+                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path
+                                d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.561-.955L10 0l2.949 5.955 6.561.955-4.755 4.635 1.123 6.545z" />
+                        </svg>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <textarea name="review_text" id="review-text" rows="4" placeholder="Write your review here..."
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 resize-none"
+                    required></textarea>
+                <button type="submit"
+                    class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold">Submit
+                    Review</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('review-modal');
+            const stars = modal.querySelectorAll('#star-rating svg');
+            const reviewText = document.getElementById('review-text');
+            const productIdInput = document.getElementById('product-id');
+            let rating = 0;
+
+            // फंक्शन जो स्टाइल और इनपुट वैल्यू अपडेट करता है
+            const updateRating = (newRating) => {
+                const ratingInput = document.getElementById('rating-input');
+
+                rating = newRating;
+                if (ratingInput) {
+                    ratingInput.value = rating.toString();
+                }
+
+                stars.forEach(s => {
+                    const starValue = parseInt(s.dataset.value);
+                    s.classList.toggle('text-yellow-400', starValue <= rating);
+                    s.classList.remove('text-yellow-300'); 
+                });
+            };
+
+            document.querySelectorAll('.open-review-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const productIdInput = document.getElementById('product-id');
+
+                    document.getElementById('order-id').value = btn.dataset.order;
+
+                    if (productIdInput) {
+                        productIdInput.value = btn.dataset.product;
+                    } 
+
+                    updateRating(0); // रीसेट
+                    reviewText.value = '';
+
+                    modal.classList.remove('modal-hidden');
+                    modal.classList.add('modal-visible');
+                });
+            });
+
+            document.getElementById('close-review-modal').addEventListener('click', () => {
+                modal.classList.remove('modal-visible');
+                modal.classList.add('modal-hidden');
+            });
+
+            // स्टार्स क्लिक इवेंट
+            stars.forEach(star => {
+                star.addEventListener('mouseover', () => {
+                    const val = parseInt(star.dataset.value);
+                    stars.forEach(s => {
+                        if (parseInt(s.dataset.value) > rating) {
+                            s.classList.toggle('text-yellow-300', parseInt(s.dataset.value) <= val);
+                        }
+                    });
+                });
+                star.addEventListener('mouseout', () => {
+                    stars.forEach(s => s.classList.remove('text-yellow-300'));
+                });
+
+                star.addEventListener('click', (e) => {
+                    updateRating(parseInt(star.dataset.value));
+                });
+            });
+
+            // सबमिट चेक लॉजिक
+            document.getElementById('review-form').addEventListener('submit', (e) => {
+                const currentRatingInput = document.getElementById('rating-input');
+                const currentRatingValue = currentRatingInput ? currentRatingInput.value : '';
+                const currentRating = parseInt(currentRatingValue || '0');
+
+                const currentReviewText = reviewText.value.trim();
+                const currentProductId = productIdInput.value;
+
+                // चेक: (1) रेटिंग 1 से 5 के बीच होनी चाहिए, (2) प्रोडक्ट ID, (3) रिव्यू टेक्स्ट।
+                if (currentRating < 1 || isNaN(currentRating) || !currentProductId || currentReviewText.length === 0) {
+                    e.preventDefault();
+                    alert("Please ensure you have selected a rating (1 to 5), and provided a review for the product.");
+                    return false; // फ़ॉर्म को रोकें
+                }
+
+                // यदि चेक पास होता है, तो फ़ॉर्म Django View को सबमिट हो जाएगा।
+            });
+        });
+    </script>
+</body>
+
+</html>

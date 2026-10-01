@@ -1,0 +1,131 @@
+{% load static %}
+{% load custom_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart — Mobile Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+  <div class="max-w-6xl mx-auto py-10 px-4">
+    <div class="flex items-center gap-2 mb-8">
+      <a href="/index/">
+        <span class="cursor-pointer text-3xl">←</span>
+      </a>
+      <h1 class="text-3xl font-semibold text-gray-800 ">Shopping Cart</h1>
+    </div>
+
+    {% if cart_items %}
+    <div class="bg-white shadow rounded-xl overflow-scroll">
+      <!-- Mobile-friendly fixed table -->
+      <table class="min-w-full divide-y divide-gray-200 table-fixed">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="w-2/5 text-left px-2 py-2 md:px-4 md:py-3 font-medium text-gray-600 text-xs sm:text-sm md:text-base">Product</th>
+            <th class="w-1/6 text-left px-2 py-2 md:px-4 md:py-3 font-medium text-gray-600 text-xs sm:text-sm md:text-base">Price</th>
+            <th class="w-1/6 text-center px-2 py-2 md:px-4 md:py-3 font-medium text-gray-600 text-xs sm:text-sm md:text-base">Qty</th>
+            <th class="w-1/6 text-right px-2 py-2 md:px-4 md:py-3 font-medium text-gray-600 text-xs sm:text-sm md:text-base">Total</th>
+            <th class="w-1/12 px-2 py-2 md:px-4 md:py-3"></th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-200">
+          {% for item in cart_items %}
+          <tr class="hover:bg-gray-50">
+            <!-- Product Info -->
+            <td class="px-2 py-2 md:px-4 md:py-3 flex items-center gap-2 text-xs sm:text-sm md:text-base">
+              <img src="{{ item.pro_id.pro_image.url }}" alt="{{ item.pro_id.pro_name }}"
+                class="w-12 h-12 md:w-20 md:h-20 object-contain rounded-md border">
+              <div class="truncate">
+                <p class="font-semibold truncate">{{ item.pro_id.pro_name }}</p>
+                <p class="text-gray-500 truncate">{{ item.pro_id.ram }} | {{ item.pro_id.storage }}</p>
+              </div>
+            </td>
+
+            <!-- Price -->
+            <td class="px-2 py-2 md:px-4 md:py-3 text-gray-700 font-medium text-xs sm:text-sm md:text-base whitespace-nowrap">
+              {{ item.pro_id.pro_price|floatformat:0|indian_format }}
+            </td>
+
+            <!-- Quantity -->
+            <td class="px-2 py-2 md:px-4 md:py-3 text-center text-xs sm:text-sm md:text-base whitespace-nowrap">
+              <form method="post" action="{% url 'update_cart' item.cart_id %}" class="flex justify-center items-center gap-1 md:gap-2">
+                {% csrf_token %}
+                <button type="submit" name="action" value="decrease"
+                  class="px-1 py-1 md:px-2 md:py-2 border border-gray-300 rounded hover:bg-gray-200 {% if item.is_min %} opacity-50 cursor-not-allowed {% endif %}"
+                  {% if item.is_min %} disabled {% endif %}>-</button>
+                <span class="font-semibold px-1 md:px-2">{{ item.quantity }}</span>
+                <button type="submit" name="action" value="increase"
+                  class="px-1 py-1 md:px-2 md:py-2 border border-gray-300 rounded hover:bg-gray-200 {% if item.is_max %} opacity-50 cursor-not-allowed {% endif %}"
+                  {% if item.is_max %} disabled {% endif %}>+</button>
+              </form>
+            </td>
+
+            <!-- Total -->
+            <td class="px-2 py-2 md:px-4 md:py-3 text-right font-semibold text-xs sm:text-sm md:text-base whitespace-nowrap">
+              {{ item.subtotal|floatformat:0|indian_format }}
+            </td>
+
+            <!-- Remove -->
+            <td class="px-2 py-2 md:px-4 md:py-3 text-center text-xs sm:text-sm md:text-base whitespace-nowrap">
+              <form method="post" action="{% url 'remove_from_cart' item.cart_id %}">
+                {% csrf_token %}
+
+                <!-- Desktop: Remove text -->
+                <button type="submit" class="text-red-500 hover:text-red-700 font-medium hidden md:inline">
+                  Remove
+                </button>
+
+                <!-- Mobile: Trash icon -->
+                <button type="submit" class="text-red-500 hover:text-red-700 md:hidden">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- Cart Summary -->
+  <div class="mt-6 bg-white shadow rounded-xl p-4 sm:p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center">
+    <div class="mb-4 md:mb-0 text-xs sm:text-sm md:text-base">
+      <p>Total Items: <span class="font-semibold">{{ cart_total_items }}</span></p>
+      <p>Total Quantity: <span class="font-semibold">{{ cart_total_quantity }}</span></p>
+      <p>Subtotal: <span class="font-semibold">{{ cart_total_price|floatformat:0|indian_format }}</span></p>
+      <p class="text-gray-600">Delivery: <span class="font-semibold text-green-600">Free</span></p>
+    </div>
+    <form action="/begin-checkout/" method="POST" class="w-full md:w-auto">
+      {% csrf_token %}
+      <button type="submit"
+        class="w-full md:w-auto bg-teal-500 text-white px-4 sm:px-6 md:px-8 py-3 sm:py-3 md:py-3 rounded-lg font-semibold hover:bg-teal-600 transition text-sm sm:text-base md:text-lg">
+        Place Order
+      </button>
+    </form>
+  </div>
+
+    {% else %}
+    <div class="bg-white rounded-xl shadow p-6 sm:p-8 text-center">
+      <img src="{% static 'images/empty-cart.png' %}" alt="Empty Cart" class="w-28 sm:w-32 mx-auto mb-4 opacity-70">
+      <h2 class="text-xl sm:text-2xl font-semibold mb-2">Your cart is empty!</h2>
+      <p class="text-gray-500 mb-4 text-xs sm:text-sm">Add products to your cart to continue shopping.</p>
+      <a href="{% url 'index' %}"
+        class="bg-teal-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-teal-600 transition">Continue
+        Shopping</a>
+    </div>
+    {% endif %}
+
+
+  </div>
+</body>
+
+</html>

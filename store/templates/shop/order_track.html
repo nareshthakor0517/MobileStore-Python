@@ -1,0 +1,209 @@
+{% load static %}
+{% load custom_tags %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shipment Tracker</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  #left{ overflow: hidden;}
+  #map { width: 100%; height: 51vh; z-index: 1; overflow: hidden}
+  @media(min-width:1024px){ #map{ height:100vh; } }
+
+  .timeline-item{position:relative;padding-left:20px;}
+  .timeline-line{position:absolute;left:-1px;top:0;width:2px;height:100%;background:#d6d6d6;}
+  .timeline-dot{width:12px;height:12px;background:#d6d6d6;border-radius:50%;position:absolute;left:-6px;top:0;}
+  .active{background:#0d9488 !important;}
+
+  #celebration{
+    position:fixed; inset:0; background:rgba(0,0,0,0.8);
+    display:none; justify-content:center; align-items:center;
+    z-index:999999; color:white; font-size:48px; font-weight:bold;
+    flex-direction:column;
+  }
+  #celebration button{
+    margin-top:20px; background:#14b8a6; color:white; padding:.75rem 1.5rem;
+    border-radius:8px; font-size:18px; font-weight:bold; transition:all .3s ease;
+  }
+  #celebration button:hover{ background:#0f766e; }
+</style>
+</head>
+
+<body class="bg-gray-100">
+
+<!-- Celebration Overlay -->
+<div id="celebration" class="hidden fixed inset-0 bg-black/80 flex flex-col justify-center items-center z-[9999] text-white px-4 text-center">
+  <h1 class="font-bold text-3xl sm:text-3xl md:text-4xl lg:text-5xl whitespace-nowrap ">
+    🎉 Delivered Successfully 🎉
+  </h1>
+  <p class="mt-4 text-2xl sm:text-base md:text-lg">Your order has arrived!</p>
+  <a href="/my_orders/">
+    <button class="mt-6 bg-teal-500 hover:bg-teal-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base md:text-lg font-semibold transition-all">
+      Go to My Orders
+    </button>
+  </a>
+</div>
+
+
+
+<div class="flex flex-col lg:flex-row h-full">
+
+  <!-- LEFT PANEL -->
+  <div id="left" class="w-full lg:w-96 bg-white shadow-xl flex flex-col overflow-y-auto p-4 space-y-4">
+    <!-- SHIPPING ID & STATUS -->
+     <div class="flex items-center gap-2">
+                <a href="/my_orders/">
+                    <span class="cursor-pointer text-xl">←</span>
+                </a>
+                <h1 class="text-xl font-semibold text-gray-800">Go to My Orders</h1>
+            </div>
+    <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-md">
+      
+      <div class="flex items-center justify-between ">
+        
+        <div>
+          <p class="text-gray-600 text-sm font-semibold">Shipping ID</p>
+          <p class="font-bold text-gray-900 text-lg">#{{ order.order_id }}</p>
+        </div>
+        <span id="order-status" class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-600">
+          {{ order.order_status|capfirst }}
+        </span>
+      </div>
+
+      <p class="text-sm text-gray-700 mb-3">
+        Delivery in: <span id="timer" class="font-bold text-red-600">30:00</span>
+      </p>
+
+      <!-- TIMELINE -->
+      <div id="timeline" class="pt-2 border-l-2 border-gray-300 pl-5 space-y-6">
+        {% for step in steps %}
+        <div class="timeline-item" id="step-{{ forloop.counter0 }}">
+          <div class="timeline-line"></div>
+          <div class="timeline-dot"></div>
+          <p class="text-xs text-gray-500">{{ step_dates|get_item:step|date:"d F Y, H:i" }}</p>
+          <p class="text-sm font-semibold text-gray-800">{{ step_titles|get_item:step }}</p>
+          <p class="text-xs text-gray-600">{{ step_location|get_item:step }}</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div id="delivered-address" class="hidden mt-4 p-4 bg-green-50 border border-green-300 rounded-lg">
+        <h3 class="font-bold text-green-700 mb-2">Delivered To</h3>
+        <p class="text-gray-700">{{ full_delivery_address }}</p>
+      </div>
+    </div>
+  
+  </a>
+  </div>
+
+  <!-- MAP -->
+  <div class="flex-1 relative">
+    <div id="map" class="w-full rounded-xl"></div>
+
+    <!-- LIVE SHIPMENT TRACKING AT BOTTOM -->
+    <div class="absolute bottom-5 left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-xl shadow-xl p-5 w-11/12 lg:w-96">
+      <div class="flex items-center text-teal-600 mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <span class="text-lg font-semibold">Live Shipment Tracking</span>
+      </div>
+
+      <div class="flex justify-between text-sm mb-2">
+        <p><span class="text-gray-500">Shipping ID:</span>
+          <span class="font-bold text-gray-800">{{ order.order_id }}</span></p>
+
+        <p><span class="text-gray-500">Status:</span>
+          <span id="status-badge"
+            class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-600">
+            {{ order.order_status|capfirst }}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+const START = [23.2156, 72.6369];
+const END = [{{ order.address.latitude }}, {{ order.address.longitude }}];
+
+const map = L.map('map').setView(START, 13);
+L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+  maxZoom:20, subdomains:['mt0','mt1','mt2','mt3']
+}).addTo(map);
+
+const redPin = L.icon({ iconUrl:"https://maps.gstatic.com/intl/en_us/mapfiles/marker.png", iconSize:[26,42], iconAnchor:[13,42] });
+L.marker(END,{icon:redPin}).addTo(map);
+
+const route = L.polyline([START, END], { color:"#4285F4", weight:6 }).addTo(map);
+map.fitBounds(route.getBounds());
+
+const truckIcon = L.divIcon({ html:`<div style="font-size:40px;">🚚</div>` });
+const truck = L.marker(START, {icon:truckIcon}).addTo(map);
+
+const ORDER_START_TIME = {{ order_start_timestamp }};
+const DELIVERY_TIME = 30*60*1000;
+
+function smooth(a,b,steps=350){
+  let arr=[];
+  for(let i=0;i<=steps;i++){
+    arr.push([a[0]+(b[0]-a[0])*(i/steps), a[1]+(b[1]-a[1])*(i/steps)]);
+  }
+  return arr;
+}
+const path = smooth(START,END);
+
+function updateLive(){
+  const now = Date.now();
+  const diff = now-ORDER_START_TIME;
+  let remaining = DELIVERY_TIME-diff;
+  if(remaining<0) remaining=0;
+  let min = Math.floor(remaining/60000);
+  let sec = Math.floor((remaining%60000)/1000);
+  document.getElementById("timer").innerText = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+
+  let progress = Math.min(diff/DELIVERY_TIME,1);
+  let index = Math.floor(progress*(path.length-1));
+  truck.setLatLng(path[index]);
+  updateTimeline(progress);
+
+  requestAnimationFrame(updateLive);
+}
+updateLive();
+
+function updateTimeline(p){
+  let step=0;
+  if(p>=0.25 && p<0.75) step=1;
+  if(p>=0.75 && p<1) step=2;
+  if(p>=1) step=3;
+
+  for(let i=0;i<=3;i++){
+    const dot=document.querySelector(`#step-${i} .timeline-dot`);
+    const line=document.querySelector(`#step-${i} .timeline-line`);
+    if(i<=step){ dot.classList.add("active"); line.classList.add("active"); }
+  }
+
+  if(p>=1){
+    document.getElementById("status-badge").innerText="Delivered";
+    document.getElementById("status-badge").className="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700";
+    document.getElementById("order-status").innerText="Delivered";
+    document.getElementById("delivered-address").classList.remove("hidden");
+    showDeliveryCelebration();
+  }
+}
+
+function showDeliveryCelebration(){
+  document.getElementById("celebration").style.display="flex";
+}
+</script>
+</body>
+</html>
